@@ -403,7 +403,7 @@ locale ; locale -a ; cat /etc/default/locale
 source /etc/environment $HOME/.bashrc $HOME/.profile
 
 # sing-box必备环境
-SB_PORT=443
+SB_PORT=0
 SB_PROTOCOL=hysteria2
 SB_PROTOCOL_TAG=hy2-in
 SB_UUID=$(uuid)
@@ -413,7 +413,7 @@ REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
 F_DATE=$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')
 
 # 这里指定了1~65535区间，从中任取一个未占用端口号
-#get_random_port 1 65535
+get_random_port 1 65535
 createUserNamePassword
 makeconfigSB
 getStartNgrok
