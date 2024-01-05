@@ -337,11 +337,11 @@ config_content="
   ]
 }"
       # 写入内容
-      sudo touch ../result.txt ; sudo ls ../result.txt
-      echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" | sudo tee ../result.txt
-      echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${SSH_N_ADDR} -p ${SSH_PORT}\n" | sudo tee -a ../result.txt
-      echo -e ${REPORT_DATE}"创建，"${F_DATE}"之前停止可能提前停止" | sudo tee -a ../result.txt
-      echo "$config_content" | sudo tee ../client-config.json
+      sudo touch ../result.txt ; sudo ls result.txt
+      echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" | sudo tee result.txt
+      echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${SSH_N_ADDR} -p ${SSH_PORT}\n" | sudo tee -a result.txt
+      echo -e ${REPORT_DATE}"创建，"${F_DATE}"之前停止可能提前停止" | sudo tee -a result.txt
+      echo "$config_content" | sudo tee client-config.json
       echo "=========================================="
     else
       echo "$HAS_ERRORS"
@@ -418,4 +418,4 @@ createUserNamePassword
 makeconfigSB
 getStartNgrok
 
-rm -rfv ../set-sing-box.sh
+rm -fv set-sing-box.sh
