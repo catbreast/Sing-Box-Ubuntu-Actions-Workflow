@@ -150,7 +150,7 @@ config_content="
     \"inbounds\": [
         {
             \"type\": \"${SB_PROTOCOL}\",
-            \"tag\": \"${SB_PROTOCOL_TAG}\",
+            \"tag\": \"${SB_PROTOCOL_IN_TAG}\",
             \"listen\": \"::\",
             \"listen_port\": ${SB_PORT},
             \"udp_disable_domain_unmapping\": false,
@@ -255,7 +255,7 @@ config_content="
       },
       {
         \"clash_mode\": \"Global\",
-        \"outbound\": \"default\"
+        \"outbound\": \"${SB_PROTOCOL_OUT_TAG}\"
       },
       {
         \"type\": \"logical\",
@@ -315,6 +315,7 @@ config_content="
   },
   \"outbounds\": [
     {
+      \"tag\": \"${SB_PROTOCOL_OUT_TAG}\",
       \"type\": \"${SB_PROTOCOL}\",
       \"server\": \"${SB_N_ADDR}\",
       \"server_port\": ${SB_N_PORT},
@@ -333,10 +334,6 @@ config_content="
     {
       \"type\": \"dns\",
       \"tag\": \"dns-out\"
-    },
-    {
-      \"type\": \"default\",
-      \"tag\": \"default\"
     },
     {
       \"type\": \"block\",
@@ -413,7 +410,8 @@ source /etc/environment $HOME/.bashrc $HOME/.profile
 # sing-box必备环境
 SB_PORT=0
 SB_PROTOCOL=hysteria2
-SB_PROTOCOL_TAG=hy2-in
+SB_PROTOCOL_IN_TAG=hy2-in
+SB_PROTOCOL_OUT_TAG=hy2-out
 SB_UUID=$(uuid)
 
 # 起止时间环境
