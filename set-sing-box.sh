@@ -209,15 +209,15 @@ getStartNgrok(){
       # Ngrok安装
       curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
 
-      mkdir -pv /home/${USER_NAME}/ngrok
+      sudo mkdir -pv /home/${USER_NAME}/ngrok
 
       # 配置文件生成
-      echo -e "tunnels:\n  sing-box:\n    addr: ${SB_PORT}\n    proto: tcp\n  ssh:\n    addr: 22\n    proto: tcp\n" > /home/${USER_NAME}/ngrok/ngrok.yml
-      ngrok config upgrade --config /home/${USER_NAME}/ngrok/ngrok.yml
-      echo -e "authtoken: ${NGROK_AUTH_TOKEN}\n" >> /home/${USER_NAME}/ngrok/ngrok.yml
+      echo -e "tunnels:\n  sing-box:\n    addr: ${SB_PORT}\n    proto: tcp\n  ssh:\n    addr: 22\n    proto: tcp\n" | sudo tee -a /home/${USER_NAME}/ngrok/ngrok.yml
+      sudo ngrok config upgrade --config /home/${USER_NAME}/ngrok/ngrok.yml
+      echo -e "authtoken: ${NGROK_AUTH_TOKEN}\n" | sudo tee -a /home/${USER_NAME}/ngrok/ngrok.yml
       
       # 启动 ngrok
-      nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
+      nohup sudo ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
       # 等待
       sleep 10
     fi
@@ -234,10 +234,12 @@ getStartNgrok(){
       SSH_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $SSH_PORT
 
       # 创建证书和密钥
-      mkdir -p /home/$USER_NAME/hysteria && openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/hysteria/private.key && openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="${DOMAIN_NAME}
+      sudo mkdir -pv /home/$USER_NAME/hysteria
+      sudo openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/hysteria/private.key
+      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="${DOMAIN_NAME}
       
       # 启动 sing-box
-      nohup sing-box run -c /etc/sing-box/config.json > /dev/null 2>&1 & disown
+      nohup sudo sing-box run -c /etc/sing-box/config.json > /dev/null 2>&1 & disown
 
       N_ADDR=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $N_ADDR
       N_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $N_PORT
