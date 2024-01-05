@@ -189,130 +189,48 @@ config_content="
 # 反向生成客户端配置
 config_content="
 {
-  \"dns\": {
-    \"servers\": [
-      {
-        \"tag\": \"google\",
-        \"address\": \"tls://8.8.8.8\"
-      },
-      {
-        \"tag\": \"local\",
-        \"address\": \"223.5.5.5\",
-        \"detour\": \"direct\"
-      }
-    ],
-    \"rules\": [
-      {
-        \"outbound\": \"any\",
-        \"server\": \"local\"
-      },
-      {
-        \"clash_mode\": \"Direct\",
-        \"server\": \"local\"
-      },
-      {
-        \"clash_mode\": \"Global\",
-        \"server\": \"google\"
-      },
-      {
-        \"type\": \"logical\",
-        \"mode\": \"and\",
-        \"rules\": [
-          {
-            \"rule_set\": \"geosite-geolocation-!cn\",
-            \"invert\": true
-          },
-          {
-            \"rule_set\": \"geosite-cn\"
-          }
-        ],
-        \"server\": \"local\"
-      }
-    ]
-  },
-  \"route\": {
-    \"rules\": [
-      {
-        \"type\": \"logical\",
-        \"mode\": \"or\",
-        \"rules\": [
-          {
-            \"protocol\": \"dns\"
-          },
-          {
-            \"port\": 53
-          }
-        ],
-        \"outbound\": \"dns-out\"
-      },
-      {
-        \"ip_is_private\": true,
-        \"outbound\": \"direct\"
-      },
-      {
-        \"clash_mode\": \"Direct\",
-        \"outbound\": \"direct\"
-      },
-      {
-        \"clash_mode\": \"Global\",
-        \"outbound\": \"${SB_PROTOCOL_OUT_TAG}\"
-      },
-      {
-        \"type\": \"logical\",
-        \"mode\": \"or\",
-        \"rules\": [
-          {
-            \"port\": 853
-          },
-          {
-            \"network\": \"udp\",
-            \"port\": 443
-          },
-          {
-            \"protocol\": \"stun\"
-          }
-        ],
-        \"outbound\": \"block\"
-      },
-      {
-        \"type\": \"logical\",
-        \"mode\": \"and\",
-        \"rules\": [
-          {
-            \"rule_set\": \"geosite-geolocation-!cn\",
-            \"invert\": true
-          },
-          {
-            \"rule_set\": [
-              \"geoip-cn\",
-              \"geosite-cn\"
-            ]
-          }
-        ],
-        \"outbound\": \"direct\"
-      }
-    ],
-    \"rule_set\": [
-      {
-        \"type\": \"remote\",
-        \"tag\": \"geoip-cn\",
-        \"format\": \"binary\",
-        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\"
-      },
-      {
-        \"type\": \"remote\",
-        \"tag\": \"geosite-cn\",
-        \"format\": \"binary\",
-        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs\"
-      },
-      {
-        \"type\": \"remote\",
-        \"tag\": \"geosite-geolocation-!cn\",
-        \"format\": \"binary\",
-        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\"
-      }
-    ]
-  },
+	\"log\": {
+		\"level\": \"debug\",
+		\"timestamp\": true
+	},
+	\"experimental\": {
+		\"clash_api\": {
+			\"external_controller\": \"127.0.0.1:9090\",
+			\"external_ui\": \"ui\",
+			\"secret\": \"\",
+			\"external_ui_download_url\": \"https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\",
+			\"external_ui_download_detour\": \"direct\",
+			\"default_mode\": \"rule\"
+		},
+		\"cache_file\": {
+			\"enabled\": true,
+			\"store_fakeip\": false
+		}
+	},
+	\"inbounds\": [{
+		\"type\": \"tun\",
+		\"inet4_address\": \"172.19.0.1/30\",
+		\"mtu\": 9000,
+		\"auto_route\": true,
+		\"strict_route\": true,
+		\"sniff\": true,
+		\"endpoint_independent_nat\": false,
+		\"stack\": \"system\",
+		\"platform\": {
+			\"http_proxy\": {
+				\"enabled\": true,
+				\"server\": \"127.0.0.1\",
+				\"server_port\": 2080
+			}
+		}
+	},
+	{
+		\"type\": \"mixed\",
+		\"listen\": \"127.0.0.1\",
+		\"listen_port\": 2080,
+		\"sniff\": true,
+		\"users\": []
+	}],
   \"outbounds\": [
     {
       \"tag\": \"${SB_PROTOCOL_OUT_TAG}\",
@@ -326,18 +244,6 @@ config_content="
         \"enabled\": true,
         \"server_name\": \"${SB_N_ADDR}\"
       }
-    },
-    {
-      \"type\": \"direct\",
-      \"tag\": \"direct\"
-    },
-    {
-      \"type\": \"dns\",
-      \"tag\": \"dns-out\"
-    },
-    {
-      \"type\": \"block\",
-      \"tag\": \"block\"
     }
   ]
 }"
