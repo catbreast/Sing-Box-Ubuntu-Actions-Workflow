@@ -243,7 +243,7 @@ config_content="
             \"port\": 53
           }
         ],
-        \"outbound\": \"dns\"
+        \"outbound\": \"dns-out\"
       },
       {
         \"ip_is_private\": true,
@@ -333,6 +333,14 @@ config_content="
     {
       \"type\": \"dns\",
       \"tag\": \"dns-out\"
+    },
+    {
+      \"type\": \"default\",
+      \"tag\": \"default\"
+    },
+    {
+      \"type\": \"block\",
+      \"tag\": \"block\"
     }
   ]
 }"
