@@ -246,9 +246,9 @@ getStartNgrok(){
       #SB_S_BAK='{"v":"2","ps":"'${REPORT_DATE}'创建，'${F_DATE}'之前停止可能提前停止","add":"'${N_ADDR}'","port":"'${N_PORT}'","id":"'${SB_UUID}'","aid":"'${SB_ALTERID}'","scy":"'${SB_SCY}'","net":"'${SB_NETWORK}'","type":"none","host":"","path":"","tls":"","sni":"","alpn":""}'
 
       # 写入内容
-      #touch ../result.txt ; ls ../result.txt
-      #echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" > ../result.txt
-      #echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${DOMAIN_NAME} -p ${SSH_PORT}\n" >> ../result.txt
+      touch ../result.txt ; ls ../result.txt
+      echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" > ../result.txt
+      echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${DOMAIN_NAME} -p ${SSH_PORT}\n" >> ../result.txt
       #echo -e  ${SB_S}"\n转\n"${SB_S_BAK}"\n" >> ../result.txt
       #echo ${SB_S_BAK} | base64 -w 0 | xargs echo vmess:// | sed 's; ;;g' >> ../result.txt
       #echo ${SB_S_BAK} | base64 -w 0 | xargs echo vmess:// | sed 's; ;;g' | qrencode -o ../二维码.png
