@@ -93,110 +93,6 @@ makeconfigSB(){
 
     # 清理文件
     rm -fv ${FILE_NAME}
-
-# 生成sing-box配置文件
-config_content="
-{
-  \"log\": {
-    \"disabled\": false,
-    \"level\": \"info\",
-    \"timestamp\": true
-  },
-  \"dns\": {
-    \"servers\": [
-      {
-        \"tag\": \"cloudflare\",
-        \"address\": \"https://1.1.1.1/dns-query\",
-        \"strategy\": \"ipv4_only\",
-        \"detour\": \"direct\"
-      },
-      {
-        \"tag\": \"block\",
-        \"address\": \"rcode://success\"
-      }
-    ],
-    \"rules\": [
-      {
-        \"geosite\": [
-          \"category-ads-all\"
-        ],
-        \"server\": \"block\",
-        \"disable_cache\": true
-      }
-    ],
-    \"final\": \"cloudflare\",
-    \"strategy\": \"\",
-    \"disable_cache\": false,
-    \"disable_expire\": false
-  },
-  \"inbounds\": [
-    {
-      \"type\": \"${SB_PROTOCOL}\",
-      \"tag\": \"${SB_PROTOCOL_TAG}\",
-      \"listen\": \"::\",
-      \"listen_port\": ${SB_PORT},
-      \"tcp_fast_open\": true,
-      \"tcp_multi_path\": false,
-      \"udp_fragment\": true,
-      \"udp_timeout\": 300,
-      \"sniff\": true,
-      \"sniff_override_destination\": false,
-      \"sniff_timeout\": \"300ms\",
-      \"domain_strategy\": \"prefer_ipv4\",
-      \"up_mbps\": 100,
-      \"down_mbps\": 100,
-      \"users\": [
-        {
-          \"name\": \"${USER_NAME}\",
-          \"password\": \"${SB_UUID}\"
-        }
-      ],
-      \"ignore_client_bandwidth\": false,
-      \"tls\": {
-        \"enabled\": true,
-        \"certificate_path\": \"/home/${USER_NAME}/hysteria/cert.pem\",
-        \"key_path\": \"/home/${USER_NAME}/hysteria/private.key\",
-        \"alpn\": [
-          \"h3\"
-        ]
-      },
-      \"masquerade\": \"\",
-      \"brutal_debug\": false
-    }
-  ],
-  \"outbounds\": [
-    {
-      \"type\": \"direct\",
-      \"tag\": \"direct\"
-    },
-    {
-      \"type\": \"block\",
-      \"tag\": \"block\"
-    },
-    {
-      \"type\": \"dns\",
-      \"tag\": \"dns-out\"
-    }
-  ],
-  \"route\": {
-    \"rules\": [
-      {
-        \"protocol\": \"dns\",
-        \"outbound\": \"dns-out\"
-      },
-      {
-        \"geosite\": [
-          \"category-ads-all\"
-        ],
-        \"outbound\": \"block\"
-      }
-    ],
-    \"auto_detect_interface\": true,
-    \"final\": \"direct\"
-  },
-  \"experimental\": {}
-}"
-echo "$config_content" | sudo tee /etc/sing-box/config.json
 }
 
 # 获取配置启动Ngrok
@@ -228,33 +124,225 @@ getStartNgrok(){
     if [[ -z "$HAS_ERRORS" ]]; then
       echo "=========================================="
       
-      # 获取域名网址
-      DOMAIN_NAME=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $DOMAIN_NAME
-      # 获取开放端口
-      SSH_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $SSH_PORT
+      # 获取ssh 映射域名网址
+      SSH_N_ADDR=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $SSH_N_ADDR
+      # 获取ssh 映射端口
+      SSH_N_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $SSH_N_PORT
+
+      # 获取sing-box 映射域名网址
+      SB_N_ADDR=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $SB_N_ADDR
+      # 获取sing-box 映射端口
+      SB_N_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $SB_N_PORT
 
       # 创建证书和密钥
       sudo mkdir -pv /home/$USER_NAME/hysteria
       sudo openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/hysteria/private.key
-      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="${DOMAIN_NAME}
-      
+      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="${SB_N_ADDR}
+
+# 生成sing-box配置文件
+config_content="
+{
+    \"log\": {
+        \"disabled\": false,
+        \"level\": \"debug\",
+        \"timestamp\": true
+    },
+    \"inbounds\": [
+        {
+            \"type\": \"${SB_PROTOCOL}\",
+            \"tag\": \"${SB_PROTOCOL_TAG}\",
+            \"listen\": \"::\",
+            \"listen_port\": ${SB_PORT},
+            \"udp_disable_domain_unmapping\": false,
+            \"users\": [
+                {
+                    \"name\": \"${USER_NAME}\",
+                    \"password\": \"${SB_UUID}\"
+                }
+            ],
+            \"ignore_client_bandwidth\": true,
+            \"tls\": {
+                \"enabled\": true,
+                \"server_name\": \"${SB_N_ADDR}\",
+                \"alpn\": [
+                    \"h3\"
+                ],
+                \"certificate_path\": \"/home/${USER_NAME}/hysteria/cert.pem\",
+                \"key_path\": \"/home/${USER_NAME}/hysteria/private.key\"
+            },
+            \"masquerade\": \"https://www.bing.com\"
+        }   
+    ],
+    \"outbounds\": [
+        {
+            \"type\": \"direct\",
+            \"tag\": \"direct-out\"
+        }          
+    ]
+}"
+      # 写入配置文件
+      echo "$config_content" | sudo tee /etc/sing-box/config.json
+
       # 启动 sing-box
-      nohup sudo sing-box run -c /etc/sing-box/config.json > /dev/null 2>&1 & disown
+      sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 
-      N_ADDR=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $N_ADDR
-      N_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $N_PORT
-      
-      #SB_S='{"v":"2","ps":"'${REPORT_DATE}'创建，'${F_DATE}'之前停止可能提前停止","add":"0.0.0.0","port":"'${SB_PORT}'","id":"'${SB_UUID}'","aid":"'${SB_ALTERID}'","scy":"'${SB_SCY}'","net":"'${SB_NETWORK}'","type":"none","host":"","path":"","tls":"","sni":"","alpn":""}' 
-      #SB_S_BAK='{"v":"2","ps":"'${REPORT_DATE}'创建，'${F_DATE}'之前停止可能提前停止","add":"'${N_ADDR}'","port":"'${N_PORT}'","id":"'${SB_UUID}'","aid":"'${SB_ALTERID}'","scy":"'${SB_SCY}'","net":"'${SB_NETWORK}'","type":"none","host":"","path":"","tls":"","sni":"","alpn":""}'
-
+# 反向生成客户端配置
+config_content="
+{
+  \"dns\": {
+    \"servers\": [
+      {
+        \"tag\": \"google\",
+        \"address\": \"tls://8.8.8.8\"
+      },
+      {
+        \"tag\": \"local\",
+        \"address\": \"223.5.5.5\",
+        \"detour\": \"direct\"
+      }
+    ],
+    \"rules\": [
+      {
+        \"outbound\": \"any\",
+        \"server\": \"local\"
+      },
+      {
+        \"clash_mode\": \"Direct\",
+        \"server\": \"local\"
+      },
+      {
+        \"clash_mode\": \"Global\",
+        \"server\": \"google\"
+      },
+      {
+        \"type\": \"logical\",
+        \"mode\": \"and\",
+        \"rules\": [
+          {
+            \"rule_set\": \"geosite-geolocation-!cn\",
+            \"invert\": true
+          },
+          {
+            \"rule_set\": \"geosite-cn\"
+          }
+        ],
+        \"server\": \"local\"
+      }
+    ]
+  },
+  \"route\": {
+    \"rules\": [
+      {
+        \"type\": \"logical\",
+        \"mode\": \"or\",
+        \"rules\": [
+          {
+            \"protocol\": \"dns\"
+          },
+          {
+            \"port\": 53
+          }
+        ],
+        \"outbound\": \"dns\"
+      },
+      {
+        \"ip_is_private\": true,
+        \"outbound\": \"direct\"
+      },
+      {
+        \"clash_mode\": \"Direct\",
+        \"outbound\": \"direct\"
+      },
+      {
+        \"clash_mode\": \"Global\",
+        \"outbound\": \"default\"
+      },
+      {
+        \"type\": \"logical\",
+        \"mode\": \"or\",
+        \"rules\": [
+          {
+            \"port\": 853
+          },
+          {
+            \"network\": \"udp\",
+            \"port\": 443
+          },
+          {
+            \"protocol\": \"stun\"
+          }
+        ],
+        \"outbound\": \"block\"
+      },
+      {
+        \"type\": \"logical\",
+        \"mode\": \"and\",
+        \"rules\": [
+          {
+            \"rule_set\": \"geosite-geolocation-!cn\",
+            \"invert\": true
+          },
+          {
+            \"rule_set\": [
+              \"geoip-cn\",
+              \"geosite-cn\"
+            ]
+          }
+        ],
+        \"outbound\": \"direct\"
+      }
+    ],
+    \"rule_set\": [
+      {
+        \"type\": \"remote\",
+        \"tag\": \"geoip-cn\",
+        \"format\": \"binary\",
+        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs\"
+      },
+      {
+        \"type\": \"remote\",
+        \"tag\": \"geosite-cn\",
+        \"format\": \"binary\",
+        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs\"
+      },
+      {
+        \"type\": \"remote\",
+        \"tag\": \"geosite-geolocation-!cn\",
+        \"format\": \"binary\",
+        \"url\": \"https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-geolocation-!cn.srs\"
+      }
+    ]
+  },
+  \"outbounds\": [
+    {
+      \"type\": \"${SB_PROTOCOL}\",
+      \"server\": \"${SB_N_ADDR}\",
+      \"server_port\": ${SB_N_PORT},
+      \"up_mbps\": 100,
+      \"down_mbps\": 100,
+      \"password\": \"${SB_UUID}\",
+      \"tls\": {
+        \"enabled\": true,
+        \"server_name\": \"${SB_N_ADDR}\"
+      }
+    },
+    {
+      \"type\": \"direct\",
+      \"tag\": \"direct\"
+    },
+    {
+      \"type\": \"dns\",
+      \"tag\": \"dns-out\"
+    }
+  ]
+}"
       # 写入内容
-      touch ../result.txt ; ls ../result.txt
-      echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" > ../result.txt
-      echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${DOMAIN_NAME} -p ${SSH_PORT}\n" >> ../result.txt
-      #echo -e  ${SB_S}"\n转\n"${SB_S_BAK}"\n" >> ../result.txt
-      #echo ${SB_S_BAK} | base64 -w 0 | xargs echo vmess:// | sed 's; ;;g' >> ../result.txt
-      #echo ${SB_S_BAK} | base64 -w 0 | xargs echo vmess:// | sed 's; ;;g' | qrencode -o ../二维码.png
-      #echo "=========================================="
+      sudo touch ../result.txt ; sudo ls ../result.txt
+      echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" | sudo tee ../result.txt
+      echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${SSH_N_ADDR} -p ${SSH_PORT}\n" | sudo tee -a ../result.txt
+      echo -e ${REPORT_DATE}"创建，"${F_DATE}"之前停止可能提前停止" | sudo tee -a ../result.txt
+      echo "$config_content" | sudo tee ../client-config.json
+      echo "=========================================="
     else
       echo "$HAS_ERRORS"
       exit 6
@@ -270,7 +358,7 @@ EOF
 date '+%Y-%m-%d %H:%M:%S'
 
 # 安装必备工具
-sudo apt update ; sudo apt-get install -y aptitude eatmydata aria2 catimg git micro locales curl wget qrencode uuid net-tools
+sudo apt update ; sudo apt-get install -y aptitude eatmydata aria2 catimg git micro locales curl wget tar socat qrencode uuid net-tools
 
 # 手动模式配置默认编辑器
 sudo update-alternatives --install /usr/bin/editor editor /usr/bin/micro 40
@@ -331,4 +419,3 @@ makeconfigSB
 getStartNgrok
 
 rm -rfv ../set-sing-box.sh
-unset USER_NAME USER_PW HOST_NAME HAS_ERRORS NGROK_AUTH_TOKEN URI_DOWNLOAD FILE_NAME ARCH_RAW ARCH VERSION URI_DOWNLOAD FILE_NAME
