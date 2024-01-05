@@ -40,7 +40,7 @@ jobs:
           name: artifacts
           path: |
             result.txt
-            config.json
+            client-config.json
   
       - name: Send email with attachments
         if: success()
@@ -55,7 +55,7 @@ jobs:
           to: ${{ secrets.MAILSENDTO }}
           from: GitHub Actions
           body: run job of ${{ github.repository }} completed successfully!
-          attachments: result.txt,config.json
+          attachments: result.txt,client-config.json
 
       - name: 6h
         run: sleep 6h
