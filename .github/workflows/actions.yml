@@ -78,8 +78,7 @@ jobs:
           # Optional converting Markdown to HTML (set content_type to text/html too):
           convert_markdown: true
           # Optional attachments:
-          # attachments: result.txt,二维码.png
-          attachments: result.txt
+          attachments: result.txt,client-config.json
           # Optional priority: 'high', 'normal' (default) or 'low'
           priority: low
 
