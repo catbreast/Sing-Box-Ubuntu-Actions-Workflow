@@ -142,43 +142,31 @@ getStartNgrok(){
 # 生成sing-box配置文件
 config_content="
 {
-    \"log\": {
-        \"disabled\": false,
-        \"level\": \"debug\",
-        \"timestamp\": true
-    },
-    \"inbounds\": [
-        {
-            \"type\": \"${SB_PROTOCOL}\",
-            \"tag\": \"${SB_PROTOCOL_IN_TAG}\",
-            \"listen\": \"::\",
-            \"listen_port\": ${SB_PORT},
-            \"udp_disable_domain_unmapping\": false,
-            \"users\": [
-                {
-                    \"name\": \"${USER_NAME}\",
-                    \"password\": \"${SB_UUID}\"
-                }
-            ],
-            \"ignore_client_bandwidth\": true,
-            \"tls\": {
-                \"enabled\": true,
-                \"server_name\": \"${SB_N_ADDR}\",
-                \"alpn\": [
-                    \"h3\"
-                ],
-                \"certificate_path\": \"/home/${USER_NAME}/hysteria/cert.pem\",
-                \"key_path\": \"/home/${USER_NAME}/hysteria/private.key\"
-            },
-            \"masquerade\": \"https://www.bing.com\"
-        }   
-    ],
-    \"outbounds\": [
-        {
-            \"type\": \"direct\",
-            \"tag\": \"direct-out\"
-        }          
-    ]
+	\"log\": {
+		\"disabled\": false,
+		\"level\": \"debug\",
+		\"timestamp\": true
+	},
+	\"inbounds\": [{
+		\"type\": \"${SB_PROTOCOL}\",
+		\"tag\": \"${SB_PROTOCOL_IN_TAG}\",
+		\"listen\": \"::\",
+		\"listen_port\": ${SB_PORT},
+		\"up_mbps\": 100,
+		\"down_mbps\": 100,
+		\"users\": [{
+			\"password\": \"${SB_UUID}\"
+		}],
+		\"tls\": {
+			\"enabled\": true,
+			\"alpn\": [\"h3\"],
+			\"certificate_path\": \"/home/${USER_NAME}/hysteria/cert.pem\",
+			\"key_path\": \"/home/${USER_NAME}/hysteria/private.key\"
+		}
+	}],
+	\"outbounds\": [{
+		\"type\": \"direct\"
+	}]
 }"
       # 写入配置文件
       echo "$config_content" | sudo tee /etc/sing-box/config.json
@@ -223,29 +211,27 @@ config_content="
 				\"server_port\": 2080
 			}
 		}
-	},
-	{
+	}, {
 		\"type\": \"mixed\",
 		\"listen\": \"127.0.0.1\",
 		\"listen_port\": 2080,
 		\"sniff\": true,
 		\"users\": []
 	}],
-  \"outbounds\": [
-    {
-      \"tag\": \"${SB_PROTOCOL_OUT_TAG}\",
-      \"type\": \"${SB_PROTOCOL}\",
-      \"server\": \"${SB_N_ADDR}\",
-      \"server_port\": ${SB_N_PORT},
-      \"up_mbps\": 100,
-      \"down_mbps\": 100,
-      \"password\": \"${SB_UUID}\",
-      \"tls\": {
-        \"enabled\": true,
-        \"server_name\": \"${SB_N_ADDR}\"
-      }
-    }
-  ]
+	\"outbounds\": [{
+		\"type\": \"${SB_PROTOCOL}\",
+		\"tag\": \"${SB_PROTOCOL_OUT_TAG}\",
+		\"server\": \"${SB_N_ADDR}\",
+		\"server_port\": ${SB_N_PORT},
+		\"up_mbps\": 100,
+		\"down_mbps\": 100,
+		\"password\": \"${SB_UUID}\",
+		\"tls\": {
+			\"enabled\": true,
+			\"server_name\": \"${SB_N_ADDR}\",
+			\"alpn\": [\"h3\"]
+		}
+	}]
 }"
       # 写入内容
       sudo touch ../result.txt ; sudo ls result.txt
