@@ -447,7 +447,7 @@ SB_UUID=$(uuid)
 V_PROTOCOL=vless
 V_R_PORT=443
 V_UUID=$(uuid)
-R_STEAL_WEBSITE_CERTIFICATES=www.pornhub.com
+R_STEAL_WEBSITE_CERTIFICATES=www.youjizz.com
 # 生成16位16进制区分主机
 R_HEX=$(openssl rand -hex 8)
 SB_R_PROTOCOL_OUT_TAG=sing-box-reality
