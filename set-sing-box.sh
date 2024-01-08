@@ -38,29 +38,23 @@ function u2t_t2u {
   UDP_PORT=$1
   TCP_PORT=$2
 
-  # 定义udp2tcp的UDP监听地址和TCP转发地址
-  UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
-  TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
-
   # 定义 tcp2udp 的 TCP 监听地址和 UDP 转发地址
-  TCP_LISTEN_ADDRS="0.0.0.0:$TCP_PORT"
-  UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
+  TCP_LISTEN_ADDR="127.0.0.1:$TCP_PORT"
+  UDP_FORWARD_ADDR="0.0.0.0:$UDP_PORT"
 
   #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
-  sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDRS --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 &
-  #获取进程的PID
-  tcp_pid=$!
-  #从shell中移除这个进程
-  disown $tcp_pid
+  sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 & disown
+
+  # 定义udp2tcp的UDP监听地址和TCP转发地址
+  UDP_LISTEN_ADDR="127.0.0.1:$UDP_PORT"
+  TCP_FORWARD_ADDR="0.0.0.0:$TCP_PORT"
+
   #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
-  sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 &
-  #获取进程的PID
-  udp_pid=$!
-  #从shell中移除这个进程
-  disown $udp_pid
+  sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 & disown
+
   #显示后台进程的PID，方便结束时杀死
-  echo "TCP to UDP: $TCP_LISTEN_ADDRS -> $UDP_FORWARD_ADDR PID: $tcp_pid"
-  echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDRS PID: $udp_pid"
+  echo "TCP to UDP: $TCP_LISTEN_ADDR -> $UDP_FORWARD_ADDR"
+  echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDR"
 }
 
 # 创建用户添加密码
@@ -436,12 +430,15 @@ date '+%Y-%m-%d %H:%M:%S'
 
 # 安装必备工具
 sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq cargo
-sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
-sudo bash build-static-bins.sh
-sudo mv -fv $(find . -iname "tcp2udp") /usr/bin/
-sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
-cd -
-sudo rm -rfv udp-over-tcp
+# clone udp tcp 互转工具
+#sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
+#sudo bash build-static-bins.sh
+#sudo mv -fv $(find . -iname "tcp2udp") /usr/bin/
+#sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
+#cd -
+#sudo rm -rfv udp-over-tcp
+sudo mv -fv tcp2udp /usr/bin/ ; sudo chmod -v +x /usr/bin/tcp2udp
+sudo mv -fv udp2tcp /usr/bin/ ; sudo chmod -v +x /usr/bin/udp2tcp
 
 # Configuration for locales
 sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
