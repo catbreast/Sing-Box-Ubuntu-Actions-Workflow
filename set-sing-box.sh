@@ -429,7 +429,8 @@ EOF
 date '+%Y-%m-%d %H:%M:%S'
 
 # 安装必备工具
-sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq cargo
+sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
+
 # clone udp tcp 互转工具
 #sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
 #sudo bash build-static-bins.sh
@@ -437,8 +438,8 @@ sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar
 #sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
 #cd -
 #sudo rm -rfv udp-over-tcp
-sudo mv -fv tcp2udp /usr/bin/ ; sudo chmod -v +x /usr/bin/tcp2udp
-sudo mv -fv udp2tcp /usr/bin/ ; sudo chmod -v +x /usr/bin/udp2tcp
+sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/tcp2udp" -O /usr/bin/tcp2udp ; sudo chmod -v +x /usr/bin/tcp2udp
+sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/udp2tcp" -O /usr/bin/udp2tcp ; sudo chmod -v +x /usr/bin/udp2tcp
 
 # Configuration for locales
 sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
