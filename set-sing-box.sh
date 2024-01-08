@@ -240,13 +240,20 @@ cat << EOL | sudo tee client-config.json > /dev/null
 		}],
 		"strategy": "ipv4_only"
 	},
-	"experimental": {
-		"clash_api": {
-			"external_controller": "0.0.0.0:9090",
-			"secret": "",
-			"store_selected": true
-		}
-	},
+	  "experimental": {
+	    "clash_api": {
+	      "external_controller": "0.0.0.0:9090",
+	      "external_ui": "ui",
+	      "secret": "",
+	      "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
+	      "external_ui_download_detour": "direct",
+	      "default_mode": "rule"
+	    },
+	    "cache_file": {
+	      "enabled": true,
+	      "store_fakeip": false
+	    }
+	  },
 	"inbounds": [{
 		"auto_route": true,
 		"domain_strategy": "ipv4_only",
