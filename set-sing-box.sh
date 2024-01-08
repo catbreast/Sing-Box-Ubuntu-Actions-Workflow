@@ -1,35 +1,47 @@
 #!/usr/bin/env bash
-# 随机创建非占用端口
-# 判断当前端口是否被占用，没被占用返回0，反之1
-function Listening {
-   TCPListeningnum=`netstat -an | grep ":$1 " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l`
-   UDPListeningnum=`netstat -an | grep ":$1 " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l`
-   (( Listeningnum = TCPListeningnum + UDPListeningnum ))
-   if [ ${Listeningnum} == 0 ]; then
-       echo "0"
-   else
-       echo "1"
-   fi
-}
-
-#指定区间随机数
-function random_range {
-   shuf -i $1-$2 -n1
-}
-
-#得到随机端口
+# 给变量赋值一个随机的非占用端口
 function get_random_port {
-   echo "port=${SB_PORT}"
-   templ=0
-   while [ ${SB_PORT} == 0 ]; do
-       temp1=`random_range $1 $2`
-       if [ `Listening ${temp1}` == 0 ] ; then
-              SB_PORT=${temp1}
-       fi
+   #指定端口范围
+   min=$1
+   max=$2
+   #生成一个随机端口
+   port=$(sudo shuf -i $min-$max -n1)
+   #检查端口是否被占用
+   tcp=$(sudo netstat -an | grep ":$port " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l)
+   udp=$(sudo netstat -an | grep ":$port " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l)
+   #如果端口被占用，重复上述步骤，直到找到一个空闲的端口
+   while [ $((tcp + udp)) -gt 0 ]; do
+      port=$(sudo shuf -i $min-$max -n1)
+      tcp=$(sudo netstat -an | grep ":$port " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l)
+      udp=$(sudo netstat -an | grep ":$port " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l)
    done
-   echo "port=${SB_PORT}"
+   #返回端口号
+   echo $port
 }
 
+#实现 TCP UDP端口监听互转的函数
+function udp2tcp {
+   #指定源端口和目标端口
+   src_port=$1
+   dst_port=$2
+   #开启内核转发功能
+   echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
+   #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
+   sudo nohup socat TCP4-LISTEN:$src_port,reuseaddr,fork UDP4:localhost:$dst_port > /dev/null 2>&1 &
+   #获取进程的PID
+   tcp_pid=$!
+   #从shell中移除这个进程
+   disown $tcp_pid
+   #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
+   sudo nohup socat UDP4-RECVFROM:$dst_port,reuseaddr,fork TCP4:localhost:$src_port > /dev/null 2>&1 &
+   #获取进程的PID
+   udp_pid=$!
+   #从shell中移除这个进程
+   disown $udp_pid
+   #显示后台进程的PID，方便结束时杀死
+   echo "TCP to UDP: $src_port -> $dst_port PID: $tcp_pid"
+   echo "UDP to TCP: $dst_port -> $src_port PID: $udp_pid"
+}
 
 # 创建用户添加密码
 createUserNamePassword(){
@@ -121,7 +133,7 @@ tunnels:
 
   sing-box:
     proto: tcp
-    addr: ${SB_PORT}
+    addr: ${U_FORWORD_T_PORT}
 EOL
       # 应用 ngrok 配置
       sudo ngrok config upgrade --config /home/${USER_NAME}/ngrok/ngrok.yml
@@ -377,10 +389,12 @@ cat << EOL | sudo tee client-config.json > /dev/null
 EOL
 
 cat << EOL | sudo tee result.txt > /dev/null
-SSH is accessible at: ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 ${USER_NAME}@${SSH_N_DOMAIN}
-VLESSReality is accessible at: ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
-Sing-Box is accessible at: ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
+SSH is accessible at: ${HOSTNAME_IP}:22 -> {SSH_N_DOMAIN}:${SSH_N_PORT}
+                      ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 ${USER_NAME}@${SSH_N_DOMAIN}
+VLESSReality is accessible at: ${HOSTNAME_IP}:${V_R_PORT} -> ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
+Sing-Box is accessible at: ${HOSTNAME_IP}:${SB_PORT} -> ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
 Time Frame is accessible at: ${REPORT_DATE}~${F_DATE}
+${UDP2TCP_INFO}
 EOL
 
       echo "=========================================="
@@ -442,7 +456,12 @@ source /etc/environment $HOME/.bashrc $HOME/.profile
 
 # sing-box必备环境
 SB_PROTOCOL=hysteria2
-SB_PORT=0
+# UDP 端口
+SB_PORT=$(get_random_port 0 65535)
+# TCP 端口
+U_FORWORD_T_PORT=$(get_random_port 0 65535)
+# UDP TCP 互转端口
+UDP2TCP_INFO=$(udp2tcp ${U_FORWORD_T_PORT} ${SB_PORT})
 SB_UUID=$(uuid)
 V_PROTOCOL=vless
 V_R_PORT=443
@@ -453,13 +472,14 @@ R_HEX=$(openssl rand -hex 8)
 SB_R_PROTOCOL_OUT_TAG=sing-box-reality
 SB_H_PROTOCOL_OUT_TAG=sing-box-hysteria2
 
+# 当前IP
+HOSTNAME_IP=$(hostname -I)
+
 
 # 起止时间环境
 REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
 F_DATE=$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')
 
-# 这里指定了1~65535区间，从中任取一个未占用端口号
-get_random_port 1 65535
 createUserNamePassword
 makeconfigSB
 getStartNgrok
