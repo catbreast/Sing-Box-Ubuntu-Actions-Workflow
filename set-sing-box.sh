@@ -147,7 +147,7 @@ tunnels:
 
   sing-box:
     proto: tcp
-    addr: ${U_FORWORD_T_PORT}
+    addr: ${SB_PORT}
 EOL
       # 应用 ngrok 配置
       sudo ngrok config upgrade --config /home/${USER_NAME}/ngrok/ngrok.yml
@@ -407,7 +407,7 @@ cat << EOL | sudo tee client-config.json > /dev/null
 EOL
 
       # UDP TCP 互转端口
-      UDP2TCP_INFO=$(u2t_t2u ${SB_PORT} ${U_FORWORD_T_PORT})
+      #UDP2TCP_INFO=$(u2t_t2u ${SB_PORT} ${U_FORWORD_T_PORT})
 cat << EOL | sudo tee result.txt > /dev/null
 SSH is accessible at: 
                       ${HOSTNAME_IP}:22 -> ${SSH_N_DOMAIN}:${SSH_N_PORT}
