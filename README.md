@@ -12,10 +12,14 @@
 
 ## 描述
 1. 这个项目主要是为了弥补另一个 FreeVPS-ubuntu-latest 项目，因为被管理员禁用，我也是重新制作测试，为了能够正常看 youtube 和 google。  
-2. 运行 actions workflow 用于运行脚本，需要添加 `GITHUB_TOKEN` 环境变量，这个是访问 GitHub API 的令牌，可以在 GitHub 主页，点击个人头像，Settings -> Developer settings -> Personal access tokens ，设置名字为 GITHUB_TOKEN 接着要勾选权限，勾选repo、admin:repo_hook和workflow即可，最后点击Generate token，如图所示  
-![1](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/114eb860-d110-44b7-ae82-e84942b34ec1)  
-3.赋予 actions[bot] 读/写仓库权限 -> Settings -> Actions -> General -> Workflow Permissions -> Read and write permissions -> save，如图所示
+2. 运行 actions workflow 用于运行脚本，需要添加 `GITHUB_TOKEN` 环境变量，这个是访问 GitHub API 的令牌，可以在 GitHub 主页，点击个人头像，Settings -> Developer settings -> Personal access tokens ，设置名字为 GITHUB_TOKEN 接着要勾选权限，勾选repo、admin:repo_hook和workflow即可，最后点击Generate token，如图所示
+
+![1](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/114eb860-d110-44b7-ae82-e84942b34ec1)
+
+3.赋予 actions[bot] 读/写仓库权限 -> Settings -> Actions -> General -> Workflow Permissions -> Read and write permissions -> save，如图所示  
+
 ![2](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/665df9d6-f795-4000-95c8-08a4aeb50197)  
+
 4. 添加 linux 用户名 `USER_NAME` 在 GitHub 仓库页 -> Settings -> Secrets -> actions -> New repository secret  
 5. 添加 linux 密码 `USER_PW` 在 GitHub 仓库页 -> Settings -> Secrets -> actions -> New repository secret  
 6. 添加 linux hostname `HOST_NAME` 在 GitHub 仓库页 -> Settings -> Secrets -> actions -> New repository secret  
@@ -26,19 +30,22 @@
 11. 添加 email smtp 服务器登录账号 `MAILUSERNAME` 在 GitHub 仓库页 -> Settings -> Secrets -> actions -> New repository secret  
 12. 添加 email smtp 服务器第三方登陆授权码 `MAILPASSWORD` 在 GitHub 仓库页 -> Settings -> Secrets -> actions -> New repository secret  
 13. 添加  email smtp 服务器应该发送邮件位置 `MAILSENDTO` 在 GitHub 仓库页 -> Settings -> Secrets -> actions -> New repository secret
-14. 以上流程如图所示  
+14. 以上流程如图所示
+
 ![3](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/d0a72247-334d-4032-9a91-94d7004fc62e)  
+
 15. 转到 Actions -> Sing-Box-Ubuntu-Actions-Workflow 并且启动 workflow，实现自动化  
 16. 新目录结构  
 
         .
         ├── set-sing-box.sh                             # 搭建脚本  
         └── README.md                                   # 这个是说明文件   
-    
-17. 出于安全考虑还是使用邮箱把发送内容发给自己的邮箱  
-18. ~这次能维持6h挺好~维持的时间还是不稳定  
-19. 修改发件内容为文本附近形式  
-20. 一些孩子总问我如何配置，我是不胜其扰啊，所以附上图片，你们老哥我年纪已经很大了求放过，呜呜呜，修改了描述文件，提供详细的描述，方便他人，呜呜，我真善良  
+
+# 更新
+    1. 出于安全考虑还是使用邮箱把发送内容发给自己的邮箱  
+    2. ~这次能维持6h挺好~维持的时间还是不稳定  
+    3. 修改发件内容为文本附近形式  
+    4. 一些孩子总问我如何配置，我是不胜其扰啊，所以附上图片，你们老哥我年纪已经很大了求放过，呜呜呜，修改了描述文件，提供详细的描述，方便他人，呜呜，我真善良  
 
 # 声明
 本项目仅作学习交流使用，用于查找资料，学习知识，不做任何违法行为。所有资源均来自互联网，仅供大家交流学习使用，出现违法问题概不负责。  
