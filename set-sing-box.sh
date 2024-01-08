@@ -223,7 +223,8 @@ EOL
 
       # 启动 sing-box
       sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
-
+      # UDP TCP 互转端口
+      UDP2TCP_INFO=$(udp2tcp ${U_FORWORD_T_PORT} ${SB_PORT})
 # 反向生成客户端配置 写入内容
 cat << EOL | sudo tee client-config.json > /dev/null
 {
@@ -460,8 +461,6 @@ SB_PROTOCOL=hysteria2
 SB_PORT=$(get_random_port 0 65535)
 # TCP 端口
 U_FORWORD_T_PORT=$(get_random_port 0 65535)
-# UDP TCP 互转端口
-UDP2TCP_INFO=$(udp2tcp ${U_FORWORD_T_PORT} ${SB_PORT})
 SB_UUID=$(uuid)
 V_PROTOCOL=vless
 V_R_PORT=443
