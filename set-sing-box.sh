@@ -39,15 +39,15 @@ function u2t_t2u {
   TCP_PORT=$2
 
   # 定义 tcp2udp 的 TCP 监听地址和 UDP 转发地址
-  TCP_LISTEN_ADDR="127.0.0.1:$TCP_PORT"
-  UDP_FORWARD_ADDR="0.0.0.0:$UDP_PORT"
+  TCP_LISTEN_ADDR="0.0.0.0:$TCP_PORT"
+  UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
 
   #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
   sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 & disown
 
   # 定义udp2tcp的UDP监听地址和TCP转发地址
-  UDP_LISTEN_ADDR="127.0.0.1:$UDP_PORT"
-  TCP_FORWARD_ADDR="0.0.0.0:$TCP_PORT"
+  UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
+  TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
 
   #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
   sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 & disown
@@ -403,13 +403,17 @@ cat << EOL | sudo tee client-config.json > /dev/null
 EOL
 
       # UDP TCP 互转端口
-      UDP2TCP_INFO=$(u2t_t2u ${U_FORWORD_T_PORT} ${SB_PORT})
+      UDP2TCP_INFO=$(u2t_t2u ${SB_PORT} ${U_FORWORD_T_PORT})
 cat << EOL | sudo tee result.txt > /dev/null
-SSH is accessible at: ${HOSTNAME_IP}:22 -> ${SSH_N_DOMAIN}:${SSH_N_PORT}
+SSH is accessible at: 
+                      ${HOSTNAME_IP}:22 -> ${SSH_N_DOMAIN}:${SSH_N_PORT}
                       ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 ${USER_NAME}@${SSH_N_DOMAIN}
-VLESSReality is accessible at: ${HOSTNAME_IP}:${V_R_PORT} -> ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
-Sing-Box is accessible at: ${HOSTNAME_IP}:${SB_PORT} -> ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
-Time Frame is accessible at: ${REPORT_DATE}~${F_DATE}
+VLESSReality is accessible at: 
+                               ${HOSTNAME_IP}:${V_R_PORT} -> ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
+Sing-Box is accessible at: 
+                           ${HOSTNAME_IP}:${SB_PORT} -> ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
+Time Frame is accessible at: 
+                            ${REPORT_DATE}~${F_DATE}
 ${UDP2TCP_INFO}
 EOL
 
