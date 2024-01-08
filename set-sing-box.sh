@@ -223,8 +223,7 @@ EOL
 
       # 启动 sing-box
       sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
-      # UDP TCP 互转端口
-      UDP2TCP_INFO=$(udp2tcp ${U_FORWORD_T_PORT} ${SB_PORT})
+
 # 反向生成客户端配置 写入内容
 cat << EOL | sudo tee client-config.json > /dev/null
 {
@@ -388,7 +387,8 @@ cat << EOL | sudo tee client-config.json > /dev/null
 	}
 }
 EOL
-
+      # UDP TCP 互转端口
+      UDP2TCP_INFO=$(udp2tcp ${U_FORWORD_T_PORT} ${SB_PORT})
 cat << EOL | sudo tee result.txt > /dev/null
 SSH is accessible at: ${HOSTNAME_IP}:22 -> {SSH_N_DOMAIN}:${SSH_N_PORT}
                       ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 ${USER_NAME}@${SSH_N_DOMAIN}
