@@ -20,27 +20,47 @@ function get_random_port {
 }
 
 #实现 TCP UDP端口监听互转的函数
-function udp2tcp {
-   #指定源端口和目标端口
-   src_port=$1
-   dst_port=$2
-   #开启内核转发功能
-   echo 1 | sudo tee /proc/sys/net/ipv4/ip_forward
-   #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
-   sudo nohup socat TCP4-LISTEN:$src_port,reuseaddr,fork UDP4:localhost:$dst_port > /dev/null 2>&1 &
-   #获取进程的PID
-   tcp_pid=$!
-   #从shell中移除这个进程
-   disown $tcp_pid
-   #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
-   sudo nohup socat UDP4-RECVFROM:$dst_port,reuseaddr,fork TCP4:localhost:$src_port > /dev/null 2>&1 &
-   #获取进程的PID
-   udp_pid=$!
-   #从shell中移除这个进程
-   disown $udp_pid
-   #显示后台进程的PID，方便结束时杀死
-   echo "TCP to UDP: $src_port -> $dst_port PID: $tcp_pid"
-   echo "UDP to TCP: $dst_port -> $src_port PID: $udp_pid"
+function u2t_t2u {
+  # 检查程序是否存在
+  if ! command -v udp2tcp &> /dev/null
+  then
+      echo "udp2tcp is not installed. Please install it first."
+      exit 1
+  fi
+
+  if ! command -v tcp2udp &> /dev/null
+  then
+      echo "tcp2udp is not installed. Please install it first."
+      exit 1
+  fi
+
+  #指定UDP端口和TCP端口
+  UDP_PORT=$1
+  TCP_PORT=$2
+
+  # 定义udp2tcp的UDP监听地址和TCP转发地址
+  UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
+  TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
+
+  # 定义 tcp2udp 的 TCP 监听地址和 UDP 转发地址
+  TCP_LISTEN_ADDRS="0.0.0.0:$TCP_PORT"
+  UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
+
+  #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
+  sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDRS --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 &
+  #获取进程的PID
+  tcp_pid=$!
+  #从shell中移除这个进程
+  disown $tcp_pid
+  #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
+  sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 &
+  #获取进程的PID
+  udp_pid=$!
+  #从shell中移除这个进程
+  disown $udp_pid
+  #显示后台进程的PID，方便结束时杀死
+  echo "TCP to UDP: $TCP_LISTEN_ADDRS -> $UDP_FORWARD_ADDR PID: $tcp_pid"
+  echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDRS PID: $udp_pid"
 }
 
 # 创建用户添加密码
@@ -387,10 +407,11 @@ cat << EOL | sudo tee client-config.json > /dev/null
 	}
 }
 EOL
+
       # UDP TCP 互转端口
-      UDP2TCP_INFO=$(udp2tcp ${U_FORWORD_T_PORT} ${SB_PORT})
+      UDP2TCP_INFO=$(u2t_t2u ${U_FORWORD_T_PORT} ${SB_PORT})
 cat << EOL | sudo tee result.txt > /dev/null
-SSH is accessible at: ${HOSTNAME_IP}:22 -> {SSH_N_DOMAIN}:${SSH_N_PORT}
+SSH is accessible at: ${HOSTNAME_IP}:22 -> ${SSH_N_DOMAIN}:${SSH_N_PORT}
                       ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 ${USER_NAME}@${SSH_N_DOMAIN}
 VLESSReality is accessible at: ${HOSTNAME_IP}:${V_R_PORT} -> ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
 Sing-Box is accessible at: ${HOSTNAME_IP}:${SB_PORT} -> ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
@@ -414,7 +435,13 @@ EOF
 date '+%Y-%m-%d %H:%M:%S'
 
 # 安装必备工具
-sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
+sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq cargo
+sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
+sudo bash build-static-bins.sh
+sudo mv -fv $(find . -iname "tcp2udp") /usr/bin/
+sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
+cd -
+sudo rm -rfv udp-over-tcp
 
 # Configuration for locales
 sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
