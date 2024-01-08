@@ -43,14 +43,14 @@ function u2t_t2u {
   UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
 
   #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
-  sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 & disown
+  nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 & disown
 
   # 定义udp2tcp的UDP监听地址和TCP转发地址
   UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
   TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
 
   #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
-  sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 & disown
+  nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 & disown
 
   #显示后台进程的PID，方便结束时杀死
   echo "TCP to UDP: $TCP_LISTEN_ADDR -> $UDP_FORWARD_ADDR"
@@ -147,7 +147,7 @@ tunnels:
 
   sing-box:
     proto: tcp
-    addr: ${SB_PORT}
+    addr: ${U_FORWORD_T_PORT}
 EOL
       # 应用 ngrok 配置
       sudo ngrok config upgrade --config /home/${USER_NAME}/ngrok/ngrok.yml
@@ -407,7 +407,7 @@ cat << EOL | sudo tee client-config.json > /dev/null
 EOL
 
       # UDP TCP 互转端口
-      #UDP2TCP_INFO=$(u2t_t2u ${SB_PORT} ${U_FORWORD_T_PORT})
+      UDP2TCP_INFO=$(u2t_t2u ${SB_PORT} ${U_FORWORD_T_PORT})
 cat << EOL | sudo tee result.txt > /dev/null
 SSH is accessible at: 
                       ${HOSTNAME_IP}:22 -> ${SSH_N_DOMAIN}:${SSH_N_PORT}
