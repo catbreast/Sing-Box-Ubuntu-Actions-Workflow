@@ -178,8 +178,8 @@ cat << EOL | sudo tee /etc/sing-box/config.json > /dev/null
 		"tls": {
 			"enabled": true,
 			"alpn": ["h3"],
-			"certificate_path": "/home/${USER_NAME}/cert.pem",
-			"key_path": "/home/${USER_NAME}/private.key"
+			"certificate_path": "/home/$USER_NAME/hysteria/cert.pem",
+			"key_path": "/home/$USER_NAME/hysteria/private.key"
 		}
 	}, {
 		"type": "${V_PROTOCOL}",
