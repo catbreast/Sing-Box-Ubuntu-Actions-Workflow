@@ -182,7 +182,7 @@ EOL
       # 创建证书和密钥
       sudo mkdir -pv /home/$USER_NAME/hysteria
       sudo openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/hysteria/private.key
-      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN=bing.com"
+      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="${SINGBOX_N_DOMAIN}
 
       # 生成 reality 私钥公钥对
       R_PRIVATEKEY_PUBLICKEY="$(sing-box generate reality-keypair)"
@@ -198,12 +198,16 @@ cat << EOL | sudo tee /etc/sing-box/config.json > /dev/null
 		"type": "${SB_PROTOCOL}",
 		"listen": "::",
 		"listen_port": ${SB_PORT},
+	        "up_mbps": 100,
+	        "down_mbps": 100,
 		"users": [{
+                        "name": "${USER_NAME}",
 			"password": "${SB_UUID}"
 		}],
 		"tls": {
 			"enabled": true,
 			"alpn": ["h3"],
+			"server_name": "${SINGBOX_N_DOMAIN}",
 			"certificate_path": "/home/$USER_NAME/hysteria/cert.pem",
 			"key_path": "/home/$USER_NAME/hysteria/private.key"
 		}
@@ -345,12 +349,12 @@ cat << EOL | sudo tee client-config.json > /dev/null
 		"server": "${SINGBOX_N_DOMAIN}",
 		"server_port": ${SINGBOX_N_PORT},
 		"tag": "${SB_H_PROTOCOL_OUT_TAG}",
-		"up_mbps": 30,
-		"down_mbps": 150,
+		"up_mbps": 100,
+		"down_mbps": 100,
 		"password": "${SB_UUID}",
 		"tls": {
 			"enabled": true,
-			"server_name": "bing.com",
+			"server_name": "${SINGBOX_N_DOMAIN}",
 			"insecure": true,
 			"alpn": ["h3"]
 		}
