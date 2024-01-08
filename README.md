@@ -38,7 +38,9 @@
 16. 新目录结构  
 
         .
-        ├── set-sing-box.sh                             # 搭建脚本  
+        ├── set-sing-box.sh                             # 搭建脚本
+        ├── tcp2udp                                     # 来自 mullvad/udp-over-tcp 编译好的 tcp2udp  
+        ├── udp2tcp                                     # 来自 mullvad/udp-over-tcp 编译好的 udp2tcp  
         └── README.md                                   # 这个是说明文件   
 
 # 更新
