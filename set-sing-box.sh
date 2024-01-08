@@ -5,7 +5,7 @@ function Listening {
    TCPListeningnum=`netstat -an | grep ":$1 " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l`
    UDPListeningnum=`netstat -an | grep ":$1 " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l`
    (( Listeningnum = TCPListeningnum + UDPListeningnum ))
-   if [ $Listeningnum == 0 ]; then
+   if [ ${Listeningnum} == 0 ]; then
        echo "0"
    else
        echo "1"
@@ -19,15 +19,15 @@ function random_range {
 
 #得到随机端口
 function get_random_port {
-   echo "port=$SB_PORT"
+   echo "port=${SB_PORT}"
    templ=0
-   while [ $SB_PORT == 0 ]; do
+   while [ ${SB_PORT} == 0 ]; do
        temp1=`random_range $1 $2`
-       if [ `Listening $temp1` == 0 ] ; then
-              SB_PORT=$temp1
+       if [ `Listening ${temp1}` == 0 ] ; then
+              SB_PORT=${temp1}
        fi
    done
-   echo "port=$SB_PORT"
+   echo "port=${SB_PORT}"
 }
 
 
@@ -35,31 +35,31 @@ function get_random_port {
 createUserNamePassword(){
 
     # 判断用户名
-    if [[ -z "$USER_NAME" ]]; then
+    if [[ -z "${USER_NAME}" ]]; then
       echo "Please set 'USER_NAME' for linux"
       exit 2
     else
-      sudo useradd -m $USER_NAME
-      sudo adduser $USER_NAME sudo
+      sudo useradd -m ${USER_NAME}
+      sudo adduser ${USER_NAME} sudo
     fi
 
     # 判断设置用户密码环境变量
-    if [[ -z "$USER_PW" ]]; then
+    if [[ -z "${USER_PW}" ]]; then
       echo "Please set 'USER_PW' for linux"
       exit 3
     else
-      echo "$USER_NAME:$USER_PW" | sudo chpasswd
+      echo "${USER_NAME}:${USER_PW}" | sudo chpasswd
       sudo sed -i 's/\/bin\/sh/\/bin\/bash/g' /etc/passwd
       echo "Update linux user password !"
-      echo -e "$USER_PW\n$USER_PW" | sudo passwd "$USER_NAME"
+      echo -e "${USER_PW}\n${USER_PW}" | sudo passwd "${USER_NAME}"
     fi
 
     # 判断用户hostname
-    if [[ -z "$HOST_NAME" ]]; then
+    if [[ -z "${HOST_NAME}" ]]; then
       echo "Please set 'HOST_NAME' for linux"
       exit 4
     else
-      sudo hostname $HOST_NAME
+      sudo hostname ${HOST_NAME}
     fi
 }
 
@@ -78,17 +78,17 @@ makeconfigSB(){
         *)          echo "Unsupported architecture: ${ARCH_RAW}"; exit 1;;
     esac
 
-    VERSION=$(curl -sL "https://github.com/SagerNet/sing-box/releases" | grep -oP '(?<=\/SagerNet\/sing-box\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
-    URI_DOWNLOAD="https://github.com/SagerNet/sing-box/releases/download/$VERSION/sing-box_${VERSION#v}_$(uname -s)_${ARCH}.deb" ; echo $URI_DOWNLOAD
+    VERSION=$(curl -sL "https://github.com/SagerNet/sing-box/releases" | grep -oP '(?<=\/SagerNet\/sing-box\/releases\/tag\/)[^"]+' | head -n 1) ; echo ${VERSION}
+    URI_DOWNLOAD="https://github.com/SagerNet/sing-box/releases/download/${VERSION}/sing-box_${VERSION#v}_$(uname -s)_${ARCH}.deb" ; echo ${URI_DOWNLOAD}
 
     # 文件名
-    FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
+    FILE_NAME=$(basename ${URI_DOWNLOAD}) ; echo ${FILE_NAME}
 
     # 下载安装包
-    wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "${URI_DOWNLOAD}" -O $FILE_NAME
+    wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "${URI_DOWNLOAD}" -O ${FILE_NAME}
 
     # 安装
-    sudo dpkg -i $FILE_NAME
+    sudo dpkg -i ${FILE_NAME}
 
     # 清理文件
     rm -fv ${FILE_NAME}
@@ -97,7 +97,7 @@ makeconfigSB(){
 # 获取配置启动Ngrok
 getStartNgrok(){
     # 判断 Ngrok 环境变量
-    if [[ -z "$NGROK_AUTH_TOKEN" ]]; then
+    if [[ -z "${NGROK_AUTH_TOKEN}" ]]; then
       echo "Please set 'NGROK_AUTH_TOKEN'"
       exit 5
     else
@@ -377,7 +377,7 @@ cat << EOL | sudo tee client-config.json > /dev/null
 EOL
 
 cat << EOL | sudo tee result.txt > /dev/null
-SSH is accessible at: ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 [USER]@${SSH_N_DOMAIN}
+SSH is accessible at: ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 ${USER_NAME}@${SSH_N_DOMAIN}
 VLESSReality is accessible at: ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
 Sing-Box is accessible at: ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
 Time Frame is accessible at: ${REPORT_DATE}~${F_DATE}
