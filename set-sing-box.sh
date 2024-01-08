@@ -303,7 +303,7 @@ cat << EOL | sudo tee client-config.json > /dev/null
 		"server_port": ${VLESSREALITY_N_PORT},
 		"tls": {
 			"enabled": true,
-			"server_name": "${VLESSREALITY_N_DOMAIN}",
+			"server_name": "${R_STEAL_WEBSITE_CERTIFICATES}",
 			"utls": {
 				"enabled": true,
 				"fingerprint": "chrome"
