@@ -107,7 +107,7 @@ getStartNgrok(){
       sudo mkdir -pv /home/${USER_NAME}/ngrok
 
 # ngrok配置文件生成
-cat << EOL | sudo tee /home/${USER_NAME}/ngrok/ngrok.yml
+cat << EOL | sudo tee /home/${USER_NAME}/ngrok/ngrok.yml > /dev/null
 authtoken: ${NGROK_AUTH_TOKEN}
 
 tunnels:
@@ -377,7 +377,7 @@ cat << EOL | sudo tee client-config.json > /dev/null
 EOL
 
 cat << EOL | sudo tee result.txt > /dev/null
-SSH is accessible at: ${SSH_N_DOMAIN}:${SSH_N_PORT}
+SSH is accessible at: ssh -p ${SSH_N_PORT} -o ServerAliveInterval=60 [USER]@${SSH_N_DOMAIN}
 VLESSReality is accessible at: ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
 Sing-Box is accessible at: ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
 Time Frame is accessible at: ${REPORT_DATE}~${F_DATE}
