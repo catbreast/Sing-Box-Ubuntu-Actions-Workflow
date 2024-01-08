@@ -58,4 +58,6 @@ jobs:
           attachments: result.txt,client-config.json
 
       - name: 6h
-        run: sleep 6h
+        run: | 
+          sudo journalctl -u sing-box --output cat -f
+          sleep 6h
