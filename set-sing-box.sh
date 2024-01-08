@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # 随机创建非占用端口
 # 判断当前端口是否被占用，没被占用返回0，反之1
 function Listening {
@@ -64,7 +63,7 @@ createUserNamePassword(){
     fi
 }
 
-# 获取配置启动sing-box
+# 获取配置启动ngrok 和 sing-box
 makeconfigSB(){
     # 获取下载路径
     # https://github.com/SagerNet/sing-box/releases
@@ -79,7 +78,7 @@ makeconfigSB(){
         *)          echo "Unsupported architecture: ${ARCH_RAW}"; exit 1;;
     esac
 
-    VERSION=$(curl -s "https://api.github.com/repos/SagerNet/sing-box/releases" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | head -n 1)  ; echo $VERSION
+    VERSION=$(curl -sL "https://github.com/SagerNet/sing-box/releases" | grep -oP '(?<=\/SagerNet\/sing-box\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
     URI_DOWNLOAD="https://github.com/SagerNet/sing-box/releases/download/$VERSION/sing-box_${VERSION#v}_$(uname -s)_${ARCH}.deb" ; echo $URI_DOWNLOAD
 
     # 文件名
@@ -89,7 +88,7 @@ makeconfigSB(){
     wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "${URI_DOWNLOAD}" -O $FILE_NAME
 
     # 安装
-    sudo dpkg -i $FILE_NAME    
+    sudo dpkg -i $FILE_NAME
 
     # 清理文件
     rm -fv ${FILE_NAME}
@@ -107,138 +106,276 @@ getStartNgrok(){
 
       sudo mkdir -pv /home/${USER_NAME}/ngrok
 
-      # 配置文件生成
-      echo -e "tunnels:\n  sing-box:\n    addr: ${SB_PORT}\n    proto: tcp\n  ssh:\n    addr: 22\n    proto: tcp\n" | sudo tee -a /home/${USER_NAME}/ngrok/ngrok.yml
+# ngrok配置文件生成
+cat << EOL | sudo tee /home/${USER_NAME}/ngrok/ngrok.yml
+authtoken: ${NGROK_AUTH_TOKEN}
+
+tunnels:
+  ssh:
+    proto: tcp
+    addr: 22
+
+  vlessreality:
+    proto: tcp
+    addr: ${V_R_PORT}
+
+  sing-box:
+    proto: tcp
+    addr: ${SB_PORT}
+EOL
+      # 应用 ngrok 配置
       sudo ngrok config upgrade --config /home/${USER_NAME}/ngrok/ngrok.yml
-      echo -e "authtoken: ${NGROK_AUTH_TOKEN}\n" | sudo tee -a /home/${USER_NAME}/ngrok/ngrok.yml
-      
       # 启动 ngrok
-      nohup sudo ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
+      sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
       # 等待
       sleep 10
     fi
-
 
     HAS_ERRORS=$(grep "command failed" < /home/${USER_NAME}/ngrok/ngrok.log)
 
     if [[ -z "$HAS_ERRORS" ]]; then
       echo "=========================================="
-      
-      # 获取ssh 映射域名网址
-      SSH_N_ADDR=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $SSH_N_ADDR
-      # 获取ssh 映射端口
-      SSH_N_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep ssh | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $SSH_N_PORT
+      # 获取 ngrok 映射信息
+      NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
 
-      # 获取sing-box 映射域名网址
-      SB_N_ADDR=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g;s;//;;g' | tail -n 2 | head -n 1) ; echo $SB_N_ADDR
-      # 获取sing-box 映射端口
-      SB_N_PORT=$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | grep sing-box | sed 's; ;\n;g;s;:;\n;g' | tail -n 1) ; echo $SB_N_PORT
+      # 提取映射端口和域名
+      SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
+      VLESSREALITY_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vlessreality") | .public_url')
+      SINGBOX_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="sing-box") | .public_url')
+
+      # 使用正则表达式提取域名和端口
+      SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
+      SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
+
+      VLESSREALITY_N_DOMAIN=$(echo "$VLESSREALITY_N_INFO" | awk -F[/:] '{print $4}')
+      VLESSREALITY_N_PORT=$(echo "$VLESSREALITY_N_INFO" | awk -F[/:] '{print $5}')
+
+      SINGBOX_N_DOMAIN=$(echo "$SINGBOX_N_INFO" | awk -F[/:] '{print $4}')
+      SINGBOX_N_PORT=$(echo "$SINGBOX_N_INFO" | awk -F[/:] '{print $5}')
 
       # 创建证书和密钥
       sudo mkdir -pv /home/$USER_NAME/hysteria
       sudo openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/hysteria/private.key
-      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="${SB_N_ADDR}
+      sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN=bing.com"
 
-# 生成sing-box配置文件
-config_content="
+      # 生成 reality 私钥公钥对
+      R_PRIVATEKEY_PUBLICKEY="$(sing-box generate reality-keypair)"
+      # 提取私钥
+      R_PRIVATEKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $2}')"
+      # 提取公钥
+      R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
+
+# 生成sing-box配置文件 写入配置文件
+cat << EOL | sudo tee /etc/sing-box/config.json > /dev/null
 {
-	\"log\": {
-		\"disabled\": false,
-		\"level\": \"debug\",
-		\"timestamp\": true
-	},
-	\"inbounds\": [{
-		\"type\": \"${SB_PROTOCOL}\",
-		\"tag\": \"${SB_PROTOCOL_IN_TAG}\",
-		\"listen\": \"::\",
-		\"listen_port\": ${SB_PORT},
-		\"up_mbps\": 100,
-		\"down_mbps\": 100,
-		\"users\": [{
-			\"password\": \"${SB_UUID}\"
+	"inbounds": [{
+		"type": "${SB_PROTOCOL}",
+		"listen": "::",
+		"listen_port": ${SB_PORT},
+		"users": [{
+			"password": "${SB_UUID}"
 		}],
-		\"tls\": {
-			\"enabled\": true,
-			\"alpn\": [\"h3\"],
-			\"certificate_path\": \"/home/${USER_NAME}/hysteria/cert.pem\",
-			\"key_path\": \"/home/${USER_NAME}/hysteria/private.key\"
+		"tls": {
+			"enabled": true,
+			"alpn": ["h3"],
+			"certificate_path": "/home/${USER_NAME}/cert.pem",
+			"key_path": "/home/${USER_NAME}/private.key"
+		}
+	}, {
+		"type": "${V_PROTOCOL}",
+		"listen": "::",
+		"listen_port": ${V_R_PORT},
+		"users": [{
+			"uuid": "${V_UUID}",
+			"flow": "xtls-rprx-vision"
+		}],
+		"tls": {
+			"enabled": true,
+			"server_name": "${R_STEAL_WEBSITE_CERTIFICATES}",
+			"reality": {
+				"enabled": true,
+				"handshake": {
+					"server": "${R_STEAL_WEBSITE_CERTIFICATES}",
+					"server_port": ${V_R_PORT}
+				},
+				"private_key": "${R_PRIVATEKEY}",
+				"short_id": ["${R_HEX}"]
+			}
 		}
 	}],
-	\"outbounds\": [{
-		\"type\": \"direct\"
+	"outbounds": [{
+		"type": "direct"
 	}]
-}"
-      # 写入配置文件
-      echo "$config_content" | sudo tee /etc/sing-box/config.json
+}
+EOL
 
       # 启动 sing-box
       sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 
-# 反向生成客户端配置
-config_content="
+# 反向生成客户端配置 写入内容
+cat << EOL | sudo tee client-config.json > /dev/null
 {
-	\"log\": {
-		\"level\": \"debug\",
-		\"timestamp\": true
+	"dns": {
+		"rules": [{
+			"clash_mode": "global",
+			"server": "remote"
+		}, {
+			"clash_mode": "direct",
+			"server": "local"
+		}, {
+			"outbound": ["any"],
+			"server": "local"
+		}, {
+			"geosite": "cn",
+			"server": "local"
+		}],
+		"servers": [{
+			"address": "https://1.1.1.1/dns-query",
+			"detour": "select",
+			"tag": "remote"
+		}, {
+			"address": "https://223.5.5.5/dns-query",
+			"detour": "direct",
+			"tag": "local"
+		}],
+		"strategy": "ipv4_only"
 	},
-	\"experimental\": {
-		\"clash_api\": {
-			\"external_controller\": \"127.0.0.1:9090\",
-			\"external_ui\": \"ui\",
-			\"secret\": \"\",
-			\"external_ui_download_url\": \"https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip\",
-			\"external_ui_download_detour\": \"direct\",
-			\"default_mode\": \"rule\"
-		},
-		\"cache_file\": {
-			\"enabled\": true,
-			\"store_fakeip\": false
+	"experimental": {
+		"clash_api": {
+			"external_controller": "0.0.0.0:9090",
+			"secret": "",
+			"store_selected": true
 		}
 	},
-	\"inbounds\": [{
-		\"type\": \"tun\",
-		\"inet4_address\": \"172.19.0.1/30\",
-		\"mtu\": 9000,
-		\"auto_route\": true,
-		\"strict_route\": true,
-		\"sniff\": true,
-		\"endpoint_independent_nat\": false,
-		\"stack\": \"system\",
-		\"platform\": {
-			\"http_proxy\": {
-				\"enabled\": true,
-				\"server\": \"127.0.0.1\",
-				\"server_port\": 2080
+	"inbounds": [{
+		"auto_route": true,
+		"domain_strategy": "ipv4_only",
+		"endpoint_independent_nat": true,
+		"inet4_address": "172.19.0.1/30",
+		"mtu": 9000,
+		"sniff": true,
+		"sniff_override_destination": true,
+		"strict_route": true,
+		"type": "tun"
+	}, {
+		"domain_strategy": "ipv4_only",
+		"listen": "0.0.0.0",
+		"listen_port": 2333,
+		"sniff": true,
+		"sniff_override_destination": true,
+		"tag": "socks-in",
+		"type": "socks",
+		"users": []
+	}, {
+		"domain_strategy": "ipv4_only",
+		"listen": "0.0.0.0",
+		"listen_port": 2334,
+		"sniff": true,
+		"sniff_override_destination": true,
+		"tag": "mixed-in",
+		"type": "mixed",
+		"users": []
+	}],
+	"log": {
+		"disabled": false,
+		"level": "debug",
+		"timestamp": true
+	},
+	"outbounds": [{
+		"tag": "select",
+		"type": "selector",
+		"default": "urltest",
+		"outbounds": ["urltest", "${SB_R_PROTOCOL_OUT_TAG}", "${SB_H_PROTOCOL_OUT_TAG}"]
+	}, {
+		"type": "${V_PROTOCOL}",
+		"tag": "${SB_R_PROTOCOL_OUT_TAG}",
+		"uuid": "${V_UUID}",
+		"flow": "xtls-rprx-vision",
+		"packet_encoding": "xudp",
+		"server": "${VLESSREALITY_N_DOMAIN}",
+		"server_port": ${VLESSREALITY_N_PORT},
+		"tls": {
+			"enabled": true,
+			"server_name": "${VLESSREALITY_N_DOMAIN}",
+			"utls": {
+				"enabled": true,
+				"fingerprint": "chrome"
+			},
+			"reality": {
+				"enabled": true,
+				"public_key": "${R_PUBLICKEY}",
+				"short_id": "${R_HEX}"
 			}
 		}
 	}, {
-		\"type\": \"mixed\",
-		\"listen\": \"127.0.0.1\",
-		\"listen_port\": 2080,
-		\"sniff\": true,
-		\"users\": []
-	}],
-	\"outbounds\": [{
-		\"type\": \"${SB_PROTOCOL}\",
-		\"tag\": \"${SB_PROTOCOL_OUT_TAG}\",
-		\"server\": \"${SB_N_ADDR}\",
-		\"server_port\": ${SB_N_PORT},
-		\"up_mbps\": 100,
-		\"down_mbps\": 100,
-		\"password\": \"${SB_UUID}\",
-		\"tls\": {
-			\"enabled\": true,
-			\"server_name\": \"${SB_N_ADDR}\",
-			\"alpn\": [\"h3\"]
+		"type": "${SB_PROTOCOL}",
+		"server": "${SINGBOX_N_DOMAIN}",
+		"server_port": ${SINGBOX_N_PORT},
+		"tag": "${SB_H_PROTOCOL_OUT_TAG}",
+		"up_mbps": 30,
+		"down_mbps": 150,
+		"password": "${SB_UUID}",
+		"tls": {
+			"enabled": true,
+			"server_name": "bing.com",
+			"insecure": true,
+			"alpn": ["h3"]
 		}
-	}]
-}"
-      # 写入内容
-      sudo touch ../result.txt ; sudo ls result.txt
-      echo -e "$(grep -o -E "name=(.+)" < /home/${USER_NAME}/ngrok/ngrok.log | sed 's; ;\n;g' | grep -v addr)\n" | sudo tee result.txt
-      echo -e "To connect: \nssh -o ServerAliveInterval=60 [USER_NAME]@${SSH_N_ADDR} -p ${SSH_N_PORT}\n" | sudo tee -a result.txt
-      echo -e ${REPORT_DATE}"创建，"${F_DATE}"之前停止可能提前停止" | sudo tee -a result.txt
-      echo "$config_content" | sudo tee client-config.json
+	}, {
+		"tag": "direct",
+		"type": "direct"
+	}, {
+		"tag": "block",
+		"type": "block"
+	}, {
+		"tag": "dns-out",
+		"type": "dns"
+	}, {
+		"tag": "urltest",
+		"type": "urltest",
+		"outbounds": ["${SB_R_PROTOCOL_OUT_TAG}", "${SB_H_PROTOCOL_OUT_TAG}"]
+	}],
+	"route": {
+		"auto_detect_interface": true,
+		"rules": [{
+			"geosite": "category-ads-all",
+			"outbound": "block"
+		}, {
+			"outbound": "dns-out",
+			"protocol": "dns"
+		}, {
+			"clash_mode": "direct",
+			"outbound": "direct"
+		}, {
+			"clash_mode": "global",
+			"outbound": "select"
+		}, {
+			"geoip": ["cn", "private"],
+			"outbound": "direct"
+		}, {
+			"geosite": "geolocation-!cn",
+			"outbound": "select"
+		}, {
+			"geosite": "cn",
+			"outbound": "direct"
+		}],
+		"geoip": {
+			"download_detour": "select"
+		},
+		"geosite": {
+			"download_detour": "select"
+		}
+	}
+}
+EOL
+
+cat << EOL | sudo tee result.txt > /dev/null
+SSH is accessible at: ${SSH_N_DOMAIN}:${SSH_N_PORT}
+VLESSReality is accessible at: ${VLESSREALITY_N_DOMAIN}:${VLESSREALITY_N_PORT}
+Sing-Box is accessible at: ${SINGBOX_N_DOMAIN}:${SINGBOX_N_PORT}
+Time Frame is accessible at: ${REPORT_DATE}~${F_DATE}
+EOL
+
       echo "=========================================="
     else
       echo "$HAS_ERRORS"
@@ -255,10 +392,7 @@ EOF
 date '+%Y-%m-%d %H:%M:%S'
 
 # 安装必备工具
-sudo apt update ; sudo apt-get install -y aptitude eatmydata aria2 catimg git micro locales curl wget tar socat qrencode uuid net-tools
-
-# 手动模式配置默认编辑器
-sudo update-alternatives --install /usr/bin/editor editor /usr/bin/micro 40
+sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
 
 # Configuration for locales
 sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
@@ -300,11 +434,18 @@ locale ; locale -a ; cat /etc/default/locale
 source /etc/environment $HOME/.bashrc $HOME/.profile
 
 # sing-box必备环境
-SB_PORT=0
 SB_PROTOCOL=hysteria2
-SB_PROTOCOL_IN_TAG=hy2-in
-SB_PROTOCOL_OUT_TAG=hy2-out
+SB_PORT=0
 SB_UUID=$(uuid)
+V_PROTOCOL=vless
+V_R_PORT=443
+V_UUID=$(uuid)
+R_STEAL_WEBSITE_CERTIFICATES=www.pornhub.com
+# 生成16位16进制区分主机
+R_HEX=$(openssl rand -hex 8)
+SB_R_PROTOCOL_OUT_TAG=sing-box-reality
+SB_H_PROTOCOL_OUT_TAG=sing-box-hysteria2
+
 
 # 起止时间环境
 REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
