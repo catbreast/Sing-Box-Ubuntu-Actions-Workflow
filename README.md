@@ -51,7 +51,7 @@
 本项目仅作学习交流使用，用于查找资料，学习知识，不做任何违法行为。所有资源均来自互联网，仅供大家交流学习使用，出现违法问题概不负责。  
 
 # 感谢&参考  
-ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux
-使用 email smtp 发送邮件: https://blog.csdn.net/liuyuinsdu/article/details/113878840
-youtube 绵阿羊 在sing-box上安装reality和hysteria2: https://www.youtube.com/watch?v=hbrOxWrGmTc
-文档 绵阿羊 在sing-box上安装reality和hysteria2: https://blog.mareep.net/posts/15209
+ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux  
+使用 email smtp 发送邮件: https://blog.csdn.net/liuyuinsdu/article/details/113878840  
+youtube 绵阿羊 在sing-box上安装reality和hysteria2: https://www.youtube.com/watch?v=hbrOxWrGmTc  
+文档 绵阿羊 在sing-box上安装reality和hysteria2: https://blog.mareep.net/posts/15209  
