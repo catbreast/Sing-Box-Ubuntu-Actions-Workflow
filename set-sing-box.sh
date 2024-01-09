@@ -1,233 +1,167 @@
-#!/usr/bin/env bash
 initall() {
 	date '+%Y-%m-%d %H:%M:%S'
 	sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-	sudo cat <<EOL | sudo tee /etc/timezone
+	sudo cat <<SMALLFLOWERCAT1995 | sudo tee /etc/timezone
 Asia/Shanghai
-  EOL
-    date '+%Y-%m-%d %H:%M:%S'
-
-    # 安装必备工具
-    sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
-
-    # clone udp tcp 互转工具
-    #sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
-    #sudo bash build-static-bins.sh
-    #sudo mv -fv $(find . -iname "tcp2udp") /usr/bin/
-    #sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
-    #cd -
-    #sudo rm -rfv udp-over-tcp
-    sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/tcp2udp" -O /usr/bin/tcp2udp ; sudo chmod -v +x /usr/bin/tcp2udp
-    sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/udp2tcp" -O /usr/bin/udp2tcp ; sudo chmod -v +x /usr/bin/udp2tcp
-
-    # Configuration for locales
-    sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
-    sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
-    sudo locale-gen zh_CN ; sudo locale-gen zh_CN.UTF-8
-
-    cat << EOF | sudo tee /etc/default/locale
+SMALLFLOWERCAT1995
+	date '+%Y-%m-%d %H:%M:%S'
+	sudo apt update
+	sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
+	sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/tcp2udp" -O /usr/bin/tcp2udp
+	sudo chmod -v +x /usr/bin/tcp2udp
+	sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/udp2tcp" -O /usr/bin/udp2tcp
+	sudo chmod -v +x /usr/bin/udp2tcp
+	sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
+	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
+	sudo locale-gen zh_CN
+	sudo locale-gen zh_CN.UTF-8
+	cat <<SMALLFLOWERCAT1995 | sudo tee /etc/default/locale
 LANGUAGE=zh_CN.UTF-8
 LC_ALL=zh_CN.UTF-8
 LANG=zh_CN.UTF-8
 LC_CTYPE=zh_CN.UTF-8
-    EOF
-
-    cat << EOF | sudo tee -a /etc/environment
+SMALLFLOWERCAT1995
+	cat <<SMALLFLOWERCAT1995 | sudo tee -a /etc/environment
 export LANGUAGE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export LANG=zh_CN.UTF-8
 export LC_CTYPE=zh_CN.UTF-8
-    EOF
-
-    cat << EOF | sudo tee -a $HOME/.bashrc
+SMALLFLOWERCAT1995
+	cat <<SMALLFLOWERCAT1995 | sudo tee -a $HOME/.bashrc
 export LANGUAGE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export LANG=zh_CN.UTF-8
 export LC_CTYPE=zh_CN.UTF-8
-    EOF
-
-    cat << EOF >> $HOME/.profile
+SMALLFLOWERCAT1995
+	cat <<SMALLFLOWERCAT1995 >>$HOME/.profile
 export LANGUAGE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export LANG=zh_CN.UTF-8
 export LC_CTYPE=zh_CN.UTF-8
-    EOF
-
-    sudo update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
-
-    locale ; locale -a ; cat /etc/default/locale
-
-    source /etc/environment $HOME/.bashrc $HOME/.profile
+SMALLFLOWERCAT1995
+	sudo update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
+	locale
+	locale -a
+	cat /etc/default/locale
+	source /etc/environment $HOME/.bashrc $HOME/.profile
 }
-
-# 给变量赋值一个随机的非占用端口
-get_random_port(){
-    #指定端口范围
-    min=$1
-    max=$2
-    #生成一个随机端口
-    port=$(sudo shuf -i $min-$max -n1)
-    #检查端口是否被占用
-    tcp=$(sudo netstat -an | grep ":$port " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l)
-    udp=$(sudo netstat -an | grep ":$port " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l)
-    #如果端口被占用，重复上述步骤，直到找到一个空闲的端口
-    while [ $((tcp + udp)) -gt 0 ]; do
-        port=$(sudo shuf -i $min-$max -n1)
-        tcp=$(sudo netstat -an | grep ":$port " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l)
-        udp=$(sudo netstat -an | grep ":$port " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l)
-    done
-    #返回端口号
-    echo $port
+get_random_port() {
+	min=$1
+	max=$2
+	port=$(sudo shuf -i $min-$max -n1)
+	tcp=$(sudo netstat -an | grep ":$port " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l)
+	udp=$(sudo netstat -an | grep ":$port " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l)
+	while [ $((tcp + udp)) -gt 0 ]; do
+		port=$(sudo shuf -i $min-$max -n1)
+		tcp=$(sudo netstat -an | grep ":$port " | awk '$1 == "tcp" && $NF == "LISTEN" {print $0}' | wc -l)
+		udp=$(sudo netstat -an | grep ":$port " | awk '$1 == "udp" && $NF == "0.0.0.0:*" {print $0}' | wc -l)
+	done
+	echo $port
 }
-
-#实现 TCP UDP端口监听互转的函数
-u2t_t2u(){
-    # 检查程序是否存在
-    if ! command -v udp2tcp &> /dev/null
-    then
-        echo "udp2tcp is not installed. Please install it first."
-        exit 1
-    fi
-
-    if ! command -v tcp2udp &> /dev/null
-    then
-        echo "tcp2udp is not installed. Please install it first."
-        exit 1
-    fi
-
-    #指定UDP端口和TCP端口
-    UDP_PORT=$1
-    TCP_PORT=$2
-
-    # 定义 tcp2udp 的 TCP 监听地址和 UDP 转发地址
-    TCP_LISTEN_ADDR="0.0.0.0:$TCP_PORT"
-    UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
-
-    #创建一个后台进程，监听tcp的源端口，转发给udp的目标端口
-    sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR > /dev/null 2>&1 & disown
-
-    # 定义udp2tcp的UDP监听地址和TCP转发地址
-    UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
-    TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
-
-    #创建一个后台进程，监听udp的目标端口，转发给tcp的源端口
-    sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR > /dev/null 2>&1 & disown
-
-    #显示后台进程的PID，方便结束时杀死
-    echo "TCP to UDP: $TCP_LISTEN_ADDR -> $UDP_FORWARD_ADDR"
-    echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDR"
+u2t_t2u() {
+	if ! command -v udp2tcp &>/dev/null; then
+		echo "udp2tcp is not installed. Please install it first."
+		exit 1
+	fi
+	if ! command -v tcp2udp &>/dev/null; then
+		echo "tcp2udp is not installed. Please install it first."
+		exit 1
+	fi
+	UDP_PORT=$1
+	TCP_PORT=$2
+	TCP_LISTEN_ADDR="0.0.0.0:$TCP_PORT"
+	UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
+	sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR >/dev/null 2>&1 &
+	disown
+	UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
+	TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
+	sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR >/dev/null 2>&1 &
+	disown
+	echo "TCP to UDP: $TCP_LISTEN_ADDR -> $UDP_FORWARD_ADDR"
+	echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDR"
 }
-
-# 创建用户添加密码
-createUserNamePassword(){
-    # 判断用户名
-    if [[ -z "$USER_NAME" ]]; then
-        echo "Please set 'USER_NAME' for linux"
-        exit 2
-    else
-        sudo useradd -m $USER_NAME
-        sudo adduser $USER_NAME sudo
-    fi
-
-    # 判断设置用户密码环境变量
-    if [[ -z "$USER_PW" ]]; then
-        echo "Please set 'USER_PW' for linux"
-        exit 3
-    else
-        echo "$USER_NAME:$USER_PW" | sudo chpasswd
-        sudo sed -i 's/\/bin\/sh/\/bin\/bash/g' /etc/passwd
-        echo "Update linux user password !"
-        echo -e "$USER_PW\n$USER_PW" | sudo passwd "$USER_NAME"
-    fi
-
-    # 判断用户hostname
-    if [[ -z "$HOST_NAME" ]]; then
-        echo "Please set 'HOST_NAME' for linux"
-        exit 4
-    else
-        sudo hostname $HOST_NAME
-    fi
+createUserNamePassword() {
+	if [[ -z "$USER_NAME" ]]; then
+		echo "Please set 'USER_NAME' for linux"
+		exit 2
+	else
+		sudo useradd -m $USER_NAME
+		sudo adduser $USER_NAME sudo
+	fi
+	if [[ -z "$USER_PW" ]]; then
+		echo "Please set 'USER_PW' for linux"
+		exit 3
+	else
+		echo "$USER_NAME:$USER_PW" | sudo chpasswd
+		sudo sed -i 's/\/bin\/sh/\/bin\/bash/g' /etc/passwd
+		echo "Update linux user password !"
+		echo -e "$USER_PW\n$USER_PW" | sudo passwd "$USER_NAME"
+	fi
+	if [[ -z "$HOST_NAME" ]]; then
+		echo "Please set 'HOST_NAME' for linux"
+		exit 4
+	else
+		sudo hostname $HOST_NAME
+	fi
 }
-
-# 获取配置启动ngrok 和 sing-box
-getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok(){
-    # 系统架构判断 
-    ARCH_RAW=$(uname -m)
-    case "$ARCH_RAW" in
-        'x86_64')    ARCH='amd64';;
-        'x86' | 'i686' | 'i386')     ARCH='386';;
-        'aarch64' | 'arm64') ARCH='arm64';;
-        'armv7l')   ARCH='armv7';;
-        's390x')    ARCH='s390x';;
-        *)          echo "Unsupported architecture: $ARCH_RAW"; exit 1;;
-    esac
-
-    # 获取Sing-box下载路径
-    # https://github.com/SagerNet/sing-box/releases
-    # 获取版本
-    VERSION=$(curl -sL "https://github.com/SagerNet/sing-box/releases" | grep -oP '(?<=\/SagerNet\/sing-box\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
-    #拼接链接
-    URI_DOWNLOAD="https://github.com/SagerNet/sing-box/releases/download/$VERSION/sing-box_${VERSION#v}_$(uname -s)_$ARCH.deb" ; echo $URI_DOWNLOAD
-    # 文件名
-    FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
-    # 下载安装包
-    wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
-    # 安装
-    sudo dpkg -i $FILE_NAME
-    # 清理文件
-    rm -fv $FILE_NAME
-
-    # 获取cloudflared下载路径
-    # https://github.com/cloudflare/cloudflared/releases
-    # 版本
-    VERSION=$(curl -sL "https://github.com/cloudflare/cloudflared/releases" | grep -oP '(?<=\/cloudflare\/cloudflared\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
-    # 拼接下载链接
-    URI_DOWNLOAD="https://github.com/cloudflare/cloudflared/releases/download/$VERSION/cloudflared-$(uname -s)-$ARCH.deb" ; echo $URI_DOWNLOAD
-    # 截取文件名
-    FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
-    # 断点续传下载文件
-    wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
-    # 安装文件
-    sudo dpkg -i $FILE_NAME
-    # 清理文件
-    rm -fv $FILE_NAME
-    sudo mkdir -pv /home/$USER_NAME/cloudflared
-
-    # 获取CloudflareSpeedTest下载路径
-    # https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases
-    # 获取版本
-    VERSION=$(curl -sL "https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases" | grep -oP '(?<=\/XIU2\/CloudflareSpeedTest\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
-    #拼接链接
-    URI_DOWNLOAD="https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases/download/$VERSION/CloudflareST_$(uname -s)_$ARCH.tar.gz" ; echo $URI_DOWNLOAD
-    # 文件名
-    FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
-    # 下载安装包
-    wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
-    # 安装
-    sudo mkdir -pv /home/$USER_NAME/CloudflareSpeedTest ; sudo sudo tar zxvf $FILE_NAME -C /home/$USER_NAME/CloudflareSpeedTest
-    # 清理文件
-    rm -fv $FILE_NAME
-    cd /home/$USER_NAME/CloudflareSpeedTest
-    # 优选IP
-    CLOUDFLAREST_IP=$(sudo ./CloudflareST -dd -tll 90 | head -n 5 | tail -n 1 | awk '{print $1}')
-    cd -
-    sudo rm -rfv /home/$USER_NAME/CloudflareSpeedTest
-    if [ "$CLOUDFLAREST_IP" != "" ];then
-        echo $CLOUDFLAREST_IP
-    else
-        CLOUDFLAREST_IP=icook.hk
-    fi
-
-    # 判断 Ngrok TOKEN 环境变量
-    if [[ -z "$NGROK_AUTH_TOKEN" ]]; then
-        echo "Please set 'NGROK_AUTH_TOKEN'"
-        exit 5
-    else
-        # Ngrok安装
-        curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
-
-    # ngrok配置文件生成
-    cat << EOL | sudo tee /home/$USER_NAME/ngrok/ngrok.yml > /dev/null
+getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
+	ARCH_RAW=$(uname -m)
+	case "$ARCH_RAW" in
+	'x86_64') ARCH='amd64' ;;
+	'x86' | 'i686' | 'i386') ARCH='386' ;;
+	'aarch64' | 'arm64') ARCH='arm64' ;;
+	'armv7l') ARCH='armv7' ;;
+	's390x') ARCH='s390x' ;;
+	*)
+		echo "Unsupported architecture: $ARCH_RAW"
+		exit 1
+		;;
+	esac
+	VERSION=$(curl -sL "https://github.com/SagerNet/sing-box/releases" | grep -oP '(?<=\/SagerNet\/sing-box\/releases\/tag\/)[^"]+' | head -n 1)
+	echo $VERSION
+	URI_DOWNLOAD="https://github.com/SagerNet/sing-box/releases/download/$VERSION/sing-box_${VERSION#v}_$(uname -s)_$ARCH.deb"
+	echo $URI_DOWNLOAD
+	FILE_NAME=$(basename $URI_DOWNLOAD)
+	echo $FILE_NAME
+	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
+	sudo dpkg -i $FILE_NAME
+	rm -fv $FILE_NAME
+	VERSION=$(curl -sL "https://github.com/cloudflare/cloudflared/releases" | grep -oP '(?<=\/cloudflare\/cloudflared\/releases\/tag\/)[^"]+' | head -n 1)
+	echo $VERSION
+	URI_DOWNLOAD="https://github.com/cloudflare/cloudflared/releases/download/$VERSION/cloudflared-$(uname -s)-$ARCH.deb"
+	echo $URI_DOWNLOAD
+	FILE_NAME=$(basename $URI_DOWNLOAD)
+	echo $FILE_NAME
+	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
+	sudo dpkg -i $FILE_NAME
+	rm -fv $FILE_NAME
+	sudo mkdir -pv /home/$USER_NAME/cloudflared
+	VERSION=$(curl -sL "https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases" | grep -oP '(?<=\/XIU2\/CloudflareSpeedTest\/releases\/tag\/)[^"]+' | head -n 1)
+	echo $VERSION
+	URI_DOWNLOAD="https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases/download/$VERSION/CloudflareST_$(uname -s)_$ARCH.tar.gz"
+	echo $URI_DOWNLOAD
+	FILE_NAME=$(basename $URI_DOWNLOAD)
+	echo $FILE_NAME
+	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
+	sudo mkdir -pv /home/$USER_NAME/CloudflareSpeedTest
+	sudo sudo tar zxvf $FILE_NAME -C /home/$USER_NAME/CloudflareSpeedTest
+	rm -fv $FILE_NAME
+	cd /home/$USER_NAME/CloudflareSpeedTest
+	CLOUDFLAREST_IP=$(sudo ./CloudflareST -dd -tll 90 | head -n 5 | tail -n 1 | awk '{print $1}')
+	cd -
+	sudo rm -rfv /home/$USER_NAME/CloudflareSpeedTest
+	if [ "$CLOUDFLAREST_IP" != "" ]; then
+		echo $CLOUDFLAREST_IP
+	else
+		CLOUDFLAREST_IP=icook.hk
+	fi
+	if [[ -z "$NGROK_AUTH_TOKEN" ]]; then
+		echo "Please set 'NGROK_AUTH_TOKEN'"
+		exit 5
+	else
+		curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
+	fi
+	cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
 
 tunnels:
@@ -246,10 +180,10 @@ tunnels:
   sing-box:
     proto: tcp
     addr: $U_FORWORD_T_PORT
-    EOL
-
+SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
-	sudo nohup ngrok start --all --config /home/$USER_NAME/ngrok/ngrok.yml >/dev/null 2>&1 & disown
+	sudo nohup ngrok start --all --config /home/$USER_NAME/ngrok/ngrok.yml >/dev/null 2>&1 &
+	disown
 	sleep 10
 	HAS_ERRORS=$(curl -s http://127.0.0.1:4040)
 	if [[ -z "$HAS_ERRORS" ]]; then
@@ -279,7 +213,7 @@ tunnels:
 		VM_HEX="$(sing-box generate rand --hex 8)"
 		SB_HEX="$(sing-box generate rand --hex 8)"
 		WS_PATH="$(sing-box generate rand --hex 6)"
-		cat <<EOL | sudo tee /etc/sing-box/config.json >/dev/null
+		cat <<SMALLFLOWERCAT1995 | sudo tee /etc/sing-box/config.json >/dev/null
 {
   "log": {
     "disabled": false,
@@ -369,7 +303,7 @@ tunnels:
     }
   ]
 }
-		EOL
+SMALLFLOWERCAT1995
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 | sudo tee /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 &
 		disown
@@ -379,7 +313,7 @@ tunnels:
 		else
 			CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
 		fi
-		cat <<EOL | sudo tee client-config.json >/dev/null
+		cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
 {
   "log": {
     "level": "debug",
@@ -747,9 +681,9 @@ tunnels:
     }
   ]
 }
-    EOL
+SMALLFLOWERCAT1995
 		UDP2TCP_INFO=$(u2t_t2u $SB_PORT $U_FORWORD_T_PORT)
-    cat <<EOL | sudo tee result.txt >/dev/null
+		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
 ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
@@ -762,14 +696,13 @@ $HOSTNAME_IP:$SB_PORT -> $SINGBOX_N_DOMAIN:$SINGBOX_N_PORT
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
 $UDP2TCP_INFO
-    EOL
+SMALLFLOWERCAT1995
 		echo "=========================================="
 	else
 		echo "$HAS_ERRORS"
 		exit 6
 	fi
 }
-
 initall
 V_PROTOCOL=vless
 V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
