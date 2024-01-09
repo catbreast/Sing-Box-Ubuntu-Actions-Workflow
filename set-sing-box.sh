@@ -158,15 +158,15 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 		exit 5
 	else
 		curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
-	        sudo mkdir -pv /home/$USER_NAME/ngrok
-        fi
+	  sudo mkdir -pv /home/$USER_NAME/ngrok
+  fi
 	cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
 
 tunnels:
-  ssh:
-    proto: tcp
-    addr: 22
+#  ssh:
+#    proto: tcp
+#    addr: 22
 
   vless:
     proto: tcp
@@ -187,12 +187,12 @@ SMALLFLOWERCAT1995
 	if [[ -z "$HAS_ERRORS" ]]; then
 		echo "=========================================="
 		NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
-		SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
+		#SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
 		VLESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')
 		VMESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')
 		SINGBOX_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="sing-box") | .public_url')
-		SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
-		SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
+		#SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
+		#SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
 		VLESS_N_DOMAIN=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')
 		VLESS_N_PORT=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')
 		VMESS_N_DOMAIN=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')
@@ -681,9 +681,9 @@ SMALLFLOWERCAT1995
 SMALLFLOWERCAT1995
 		UDP2TCP_INFO=$(u2t_t2u $SB_PORT $U_FORWORD_T_PORT)
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
-SSH is accessible at: 
-$HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
-ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
+#SSH is accessible at: 
+#$HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
+#ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
 VMESS is accessible at: 
