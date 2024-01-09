@@ -160,7 +160,7 @@ SMALLFLOWERCAT1995
 	if [[ -z "$HAS_ERRORS" ]]; then
 		echo "=========================================="
   		NGROK_INFO="$(curl -s http://127.0.0.1:4040/api/tunnels)"
-		VLESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')"
+
                 V_PROTOCOL=vless
 		V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 		V_PORT="$(get_random_port 0 65535)"
@@ -178,7 +178,6 @@ SMALLFLOWERCAT1995
 		VM_UUID="$(sing-box generate uuid)"
 		VM_TYPE=ws
 		VM_PATH="$(sing-box generate rand --hex 6)"
-  
 		cat <<SMALLFLOWERCAT1995 | sudo tee /etc/sing-box/config.json >/dev/null
 {
   "log": {
@@ -249,10 +248,12 @@ SMALLFLOWERCAT1995
   ]
 }
 SMALLFLOWERCAT1995
+
 		SB_ALL_PROTOCOL_OUT_TAG=sing-box-all-proxy
 		SB_ALL_PROTOCOL_OUT_TYPE=selector
 		SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
 		SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
+		VLESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')"
 		VLESS_N_DOMAIN="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')"
 		VLESS_N_PORT="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')"
 
@@ -272,6 +273,7 @@ SMALLFLOWERCAT1995
 		else
 			CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
 		fi
+  
 		cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
 {
   "outbounds": [
