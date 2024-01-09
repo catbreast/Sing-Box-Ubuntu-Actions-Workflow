@@ -137,6 +137,8 @@ getStartSing-box_cloudflared_ngrok() {
 		curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
 	        sudo mkdir -pv /home/$USER_NAME/ngrok
         fi
+	V_PORT="$(get_random_port 0 65535)"
+	VM_PORT="$(get_random_port 0 65535)"
 	cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
 
@@ -163,7 +165,6 @@ SMALLFLOWERCAT1995
 
                 V_PROTOCOL=vless
 		V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
-		V_PORT="$(get_random_port 0 65535)"
 		V_UUID="$(sing-box generate uuid)"
 
 		R_STEAL_WEBSITE_CERTIFICATES=pornhub.com
@@ -174,7 +175,6 @@ SMALLFLOWERCAT1995
 
 		VM_PROTOCOL=vmess
 		VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
-		VM_PORT="$(get_random_port 0 65535)"
 		VM_UUID="$(sing-box generate uuid)"
 		VM_TYPE=ws
 		VM_PATH="$(sing-box generate rand --hex 6)"
