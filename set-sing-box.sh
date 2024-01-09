@@ -9,10 +9,6 @@ SMALLFLOWERCAT1995
 	date '+%Y-%m-%d %H:%M:%S'
 	sudo apt update
 	sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
-	sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/tcp2udp" -O /usr/bin/tcp2udp
-	sudo chmod -v +x /usr/bin/tcp2udp
-	sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/udp2tcp" -O /usr/bin/udp2tcp
-	sudo chmod -v +x /usr/bin/udp2tcp
 	sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
 	sudo locale-gen zh_CN
@@ -626,9 +622,6 @@ $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
 
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
-
-UDP2TCP TCP2UDP is accessible at: 
-$UDP2TCP_INFO
 SMALLFLOWERCAT1995
 		echo "=========================================="
 	else
