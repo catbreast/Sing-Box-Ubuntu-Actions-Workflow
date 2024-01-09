@@ -560,8 +560,8 @@ SMALLFLOWERCAT1995
       "uuid": "$V_UUID",
       "flow": "xtls-rprx-vision",
       "packet_encoding": "xudp",
-      "server": "$VLESSREALITY_N_DOMAIN",
-      "server_port": $VLESSREALITY_N_PORT,
+      "server": "$VLESS_N_DOMAIN",
+      "server_port": $VLESS_N_PORT,
       "tls": {
         "enabled": true,
         "server_name": "$R_STEAL_WEBSITE_CERTIFICATES",
