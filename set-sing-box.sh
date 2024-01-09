@@ -237,6 +237,8 @@ SMALLFLOWERCAT1995
 SMALLFLOWERCAT1995
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
+                sudo kill -9 $(sudo ps -ef | grep -v grep | grep cloudflared | awk '{print $2}')
+		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sleep 5
 		bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
@@ -511,7 +513,7 @@ SMALLFLOWERCAT1995
       }
     },
     {
-      "server": "$R_STEAL_WEBSITE_CERTIFICATES",
+      "server": "${VM_WEBSITE}",
       "server_port": $CLOUDFLAREST_PORT,
       "tag": "$SB_VM_PROTOCOL_OUT_TAG",
       "tls": {
@@ -616,8 +618,9 @@ initall
 V_PROTOCOL=vless
 V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 V_PORT=$(get_random_port 0 65535)
-R_STEAL_WEBSITE_CERTIFICATES=youjizz.com
+R_STEAL_WEBSITE_CERTIFICATES=pornhub.com
 R_STEAL_WEBSITE_PORT=443
+VM_WEBSITE=icook.hk
 VM_PROTOCOL=vmess
 VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 VM_PORT=$(get_random_port 0 65535)
