@@ -81,6 +81,18 @@ createUserNamePassword() {
 	else
 		sudo hostname $HOST_NAME
 	fi
+        # sudo 免密码
+	cat << EOF | sudo tee test.sh
+	sudo touch /etc/sudoers.d/$USER_NAME
+	sudo chown -Rv $USER_NAME:$USER_NAME  /etc/sudoers.d/$USER_NAME
+	sudo chmod -Rv 0777 /etc/sudoers.d/$USER_NAME
+	echo "$USER_NAME ALL=(ALL) NOPASSWD:ALL" | sudo tee > /etc/sudoers.d/$USER_NAME
+	sudo chown -Rv root:root  /etc/sudoers.d/$USER_NAME
+	sudo chown -Rv root:wheel  /etc/sudoers.d/$USER_NAME
+	sudo chmod -Rv 0440 /etc/sudoers.d/$USER_NAME
+	sudo cat /etc/sudoers.d/$USER_NAME
+	EOF
+	sudo bash -c "bash test.sh ; rm -rfv test.sh"
 }
 # 下载 sing-box cloudflared ngrok
 getStartSing-box_cloudflared_ngrok() {
