@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+# 前戏初始化
 initall() {
 	date '+%Y-%m-%d %H:%M:%S'
 	sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
@@ -45,6 +47,7 @@ SMALLFLOWERCAT1995
 	cat /etc/default/locale
 	source /etc/environment $HOME/.bashrc $HOME/.profile
 }
+# 生成随机不占用的端口
 get_random_port() {
 	min=$1
 	max=$2
@@ -58,26 +61,7 @@ get_random_port() {
 	done
 	echo $port
 }
-u2t_t2u() {
-	if ! command -v udp2tcp &>/dev/null; then
-		echo "udp2tcp is not installed. Please install it first."
-		exit 1
-	fi
-	if ! command -v tcp2udp &>/dev/null; then
-		echo "tcp2udp is not installed. Please install it first."
-		exit 1
-	fi
-	UDP_PORT=$1
-	TCP_PORT=$2
-	TCP_LISTEN_ADDR="0.0.0.0:$TCP_PORT"
-	UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
-	sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR >/dev/null 2>&1 & disown
-	UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
-	TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
-	sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR >/dev/null 2>&1 & disown
-	echo "TCP to UDP: $TCP_LISTEN_ADDR -> $UDP_FORWARD_ADDR"
-	echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDR"
-}
+# 初始化用户密码
 createUserNamePassword() {
 	if [[ -z "$USER_NAME" ]]; then
 		echo "Please set 'USER_NAME' for linux"
@@ -102,6 +86,7 @@ createUserNamePassword() {
 		sudo hostname $HOST_NAME
 	fi
 }
+# 下载 sing-box cloudflared cloudflarespeedtesr ngrok
 getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 	ARCH_RAW=$(uname -m)
 	case "$ARCH_RAW" in
@@ -124,6 +109,7 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
 	sudo dpkg -i $FILE_NAME
 	rm -fv $FILE_NAME
+ 
 	VERSION=$(curl -sL "https://github.com/cloudflare/cloudflared/releases" | grep -oP '(?<=\/cloudflare\/cloudflared\/releases\/tag\/)[^"]+' | head -n 1)
 	echo $VERSION
 	URI_DOWNLOAD="https://github.com/cloudflare/cloudflared/releases/download/$VERSION/cloudflared-$(uname -s)-$ARCH.deb"
@@ -133,6 +119,7 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
 	sudo dpkg -i $FILE_NAME
 	rm -fv $FILE_NAME
+ 
 	sudo mkdir -pv /home/$USER_NAME/cloudflared
 	VERSION=$(curl -sL "https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases" | grep -oP '(?<=\/XIU2\/CloudflareSpeedTest\/releases\/tag\/)[^"]+' | head -n 1)
 	echo $VERSION
@@ -153,6 +140,7 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 	else
 		CLOUDFLAREST_IP=icook.hk
 	fi
+ 
 	if [[ -z "$NGROK_AUTH_TOKEN" ]]; then
 		echo "Please set 'NGROK_AUTH_TOKEN'"
 		exit 5
@@ -175,10 +163,6 @@ tunnels:
   vmess:
     proto: tcp
     addr: $VM_PORT
-
-#  sing-box:
-#    proto: tcp
-#    addr: $U_FORWORD_T_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
         sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
@@ -190,18 +174,12 @@ SMALLFLOWERCAT1995
 		SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
 		VLESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')
 		VMESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')
-		SINGBOX_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="sing-box") | .public_url')
 		SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
 		SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
 		VLESS_N_DOMAIN=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')
 		VLESS_N_PORT=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')
 		VMESS_N_DOMAIN=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')
 		VMESS_N_PORT=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')
-		SINGBOX_N_DOMAIN=$(echo "$SINGBOX_N_INFO" | awk -F[/:] '{print $4}')
-		SINGBOX_N_PORT=$(echo "$SINGBOX_N_INFO" | awk -F[/:] '{print $5}')
-		sudo mkdir -pv /home/$USER_NAME/hysteria
-		sudo openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/hysteria/private.key
-		sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/hysteria/private.key -out /home/$USER_NAME/hysteria/cert.pem -subj "/CN="$SINGBOX_N_DOMAIN
 		R_PRIVATEKEY_PUBLICKEY="$(sing-box generate reality-keypair)"
 		R_PRIVATEKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $2}')"
 		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
@@ -209,7 +187,6 @@ SMALLFLOWERCAT1995
 		VM_UUID="$(sing-box generate uuid)"
 		R_HEX="$(sing-box generate rand --hex 8)"
 		VM_HEX="$(sing-box generate rand --hex 8)"
-		SB_HEX="$(sing-box generate rand --hex 8)"
 		WS_PATH="$(sing-box generate rand --hex 6)"
 		cat <<SMALLFLOWERCAT1995 | sudo tee /etc/sing-box/config.json >/dev/null
 {
@@ -266,27 +243,6 @@ SMALLFLOWERCAT1995
         "path": "$VM_HEX",
         "max_early_data": 2048,
         "early_data_header_name": "Sec-WebSocket-Protocol"
-      }
-    },
-    {
-      "sniff": true,
-      "sniff_override_destination": true,
-      "type": "$SB_PROTOCOL",
-      "tag": "$SB_PROTOCOL_IN_TAG",
-      "listen": "::",
-      "listen_port": $SB_PORT,
-      "users": [
-        {
-          "password": "$SB_HEX"
-        }
-      ],
-      "tls": {
-        "enabled": true,
-        "alpn": [
-          "$SB_ALPN"
-        ],
-        "certificate_path": "/home/$USER_NAME/hysteria/cert.pem",
-        "key_path": "/home/$USER_NAME/hysteria/private.key"
       }
     }
   ],
@@ -550,8 +506,7 @@ SMALLFLOWERCAT1995
         "auto",
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG",
-        "$SB_H_PROTOCOL_OUT_TAG"
+        "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     },
     {
@@ -606,23 +561,6 @@ SMALLFLOWERCAT1995
       "uuid": "$VM_UUID"
     },
     {
-      "type": "$SB_PROTOCOL",
-      "server": "$SINGBOX_N_DOMAIN",
-      "server_port": $SINGBOX_N_PORT,
-      "tag": "$SB_H_PROTOCOL_OUT_TAG",
-      "up_mbps": 100,
-      "down_mbps": 100,
-      "password": "$SB_HEX",
-      "tls": {
-        "enabled": true,
-        "server_name": "$SINGBOX_N_DOMAIN",
-        "insecure": true,
-        "alpn": [
-          "h3"
-        ]
-      }
-    },
-    {
       "tag": "direct",
       "type": "direct"
     },
@@ -639,7 +577,6 @@ SMALLFLOWERCAT1995
       "type": "urltest",
       "outbounds": [
         "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_H_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ],
       "url": "http://www.gstatic.com/generate_204",
@@ -652,7 +589,6 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_H_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     },
@@ -662,7 +598,6 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_H_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     },
@@ -672,26 +607,26 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_H_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     }
   ]
 }
 SMALLFLOWERCAT1995
-		UDP2TCP_INFO=$(u2t_t2u $SB_PORT $U_FORWORD_T_PORT)
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
 ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
+
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
+
 VMESS is accessible at: 
 $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
-#Sing-Box is accessible at: 
-#$HOSTNAME_IP:$SB_PORT -> $SINGBOX_N_DOMAIN:$SINGBOX_N_PORT
+
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
+
 UDP2TCP TCP2UDP is accessible at: 
 $UDP2TCP_INFO
 SMALLFLOWERCAT1995
@@ -711,16 +646,10 @@ VM_PROTOCOL=vmess
 VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 VM_PORT=$(get_random_port 0 65535)
 VM_TYPE=ws
-SB_PROTOCOL=hysteria2
-SB_PROTOCOL_IN_TAG=$SB_PROTOCOL-in
-SB_PORT=$(get_random_port 0 65535)
-U_FORWORD_T_PORT=$(get_random_port 0 65535)
-SB_ALPN=h3
 SB_ALL_PROTOCOL_OUT_TAG=sing-box-all-proxy
 SB_ALL_PROTOCOL_OUT_TYPE=selector
 SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
 SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
-SB_H_PROTOCOL_OUT_TAG=$SB_PROTOCOL-out
 CLOUDFLAREST_PORT=443
 HOSTNAME_IP=$(hostname -I)
 REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
