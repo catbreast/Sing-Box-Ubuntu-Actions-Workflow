@@ -1,5 +1,5 @@
 # Sing-Box-Ubuntu-Actions-Workflow
-这是借用 actions 产生的虚拟机网络环境并使用 sing-box + reality + hysteria2 共享网络环境从而让我访问国际互联网的临时方案  
+这是借用 actions 产生的虚拟机网络环境并使用 sing-box + reality(vless) + vmess 共享网络环境从而让我访问国际互联网的临时方案  
 
 [![GitHub Workflow Status](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/actions/workflows/actions.yml/badge.svg)](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/actions/workflows/actions.yml)![Watchers](https://img.shields.io/github/watchers/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow) ![Stars](https://img.shields.io/github/stars/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow) ![Forks](https://img.shields.io/github/forks/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow) ![Vistors](https://visitor-badge.laobi.icu/badge?page_id=smallflowercat1995.Sing-Box-Ubuntu-Actions-Workflow) ![LICENSE](https://img.shields.io/badge/license-CC%20BY--SA%204.0-green.svg)
 <a href="https://star-history.com/#smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow&Date">
@@ -11,7 +11,7 @@
 </a>
 
 ## 描述
-1. 这个项目主要是为了弥补另一个 FreeVPS-ubuntu-latest 项目，因为被管理员禁用，我也是重新制作测试，为了能够正常看 youtube 和 google。  
+1. 这个项目主要是为了临时能够正常看 youtube 和 google。  
 2. 运行 actions workflow 用于运行脚本，需要添加 `GITHUB_TOKEN` 环境变量，这个是访问 GitHub API 的令牌，可以在 GitHub 主页，点击个人头像，Settings -> Developer settings -> Personal access tokens ，设置名字为 GITHUB_TOKEN 接着要勾选权限，勾选repo、admin:repo_hook和workflow即可，最后点击Generate token，如图所示  
 
 ![1](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/114eb860-d110-44b7-ae82-e84942b34ec1)
@@ -38,9 +38,7 @@
 16. 新目录结构  
 
         .
-        ├── set-sing-box.sh                             # 搭建脚本
-        ├── tcp2udp                                     # 来自 mullvad/udp-over-tcp 编译好的 tcp2udp  
-        ├── udp2tcp                                     # 来自 mullvad/udp-over-tcp 编译好的 udp2tcp  
+        ├── set-sing-box.sh                             # 搭建脚本  
         └── README.md                                   # 这个是说明文件   
 
 # 更新
@@ -48,9 +46,6 @@
     2. ~这次能维持6h挺好~维持的时间还是不稳定，最长维持 44min42s  
     3. 修改发件内容为文本附近形式  
     4. 一些孩子总问我如何配置，我是不胜其扰啊，所以附上图片，你们老哥我年纪已经很大了求放过，呜呜呜，修改了描述文件，提供详细的描述，方便他人，呜呜，我真善良  
-
-# 缺点
-    1.不支持 hysteria2 协议因为走的是 udp 协议，github actions 没办法突破，也许在真正的 vps 上可以使用
 
 # 声明
 本项目仅作学习交流使用，用于查找资料，学习知识，不做任何违法行为。所有资源均来自互联网，仅供大家交流学习使用，出现违法问题概不负责。  
@@ -60,4 +55,3 @@ ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux
 使用 email smtp 发送邮件: https://blog.csdn.net/liuyuinsdu/article/details/113878840  
 youtube 绵阿羊 在sing-box上安装reality和hysteria2: https://www.youtube.com/watch?v=hbrOxWrGmTc  
 文档 绵阿羊 在sing-box上安装reality和hysteria2: https://blog.mareep.net/posts/15209  
-u2t_t2u udp tcp互转函数编写: https://github.com/mullvad/udp-over-tcp  
