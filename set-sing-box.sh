@@ -3,8 +3,8 @@ initall() {
 	date '+%Y-%m-%d %H:%M:%S'
 	sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	sudo cat <<EOL | sudo tee /etc/timezone
-    Asia/Shanghai
-    EOL
+Asia/Shanghai
+EOL
     date '+%Y-%m-%d %H:%M:%S'
 
     # 安装必备工具
@@ -26,32 +26,32 @@ initall() {
     sudo locale-gen zh_CN ; sudo locale-gen zh_CN.UTF-8
 
     cat << EOF | sudo tee /etc/default/locale
-    LANGUAGE=zh_CN.UTF-8
-    LC_ALL=zh_CN.UTF-8
-    LANG=zh_CN.UTF-8
-    LC_CTYPE=zh_CN.UTF-8
-    EOF
+LANGUAGE=zh_CN.UTF-8
+LC_ALL=zh_CN.UTF-8
+LANG=zh_CN.UTF-8
+LC_CTYPE=zh_CN.UTF-8
+EOF
 
     cat << EOF | sudo tee -a /etc/environment
-    export LANGUAGE=zh_CN.UTF-8
-    export LC_ALL=zh_CN.UTF-8
-    export LANG=zh_CN.UTF-8
-    export LC_CTYPE=zh_CN.UTF-8
-    EOF
+export LANGUAGE=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8
+export LANG=zh_CN.UTF-8
+export LC_CTYPE=zh_CN.UTF-8
+EOF
 
     cat << EOF | sudo tee -a $HOME/.bashrc
-    export LANGUAGE=zh_CN.UTF-8
-    export LC_ALL=zh_CN.UTF-8
-    export LANG=zh_CN.UTF-8
-    export LC_CTYPE=zh_CN.UTF-8
-    EOF
+export LANGUAGE=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8
+export LANG=zh_CN.UTF-8
+export LC_CTYPE=zh_CN.UTF-8
+EOF
 
     cat << EOF >> $HOME/.profile
-    export LANGUAGE=zh_CN.UTF-8
-    export LC_ALL=zh_CN.UTF-8
-    export LANG=zh_CN.UTF-8
-    export LC_CTYPE=zh_CN.UTF-8
-    EOF
+export LANGUAGE=zh_CN.UTF-8
+export LC_ALL=zh_CN.UTF-8
+export LANG=zh_CN.UTF-8
+export LC_CTYPE=zh_CN.UTF-8
+EOF
 
     sudo update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
 
