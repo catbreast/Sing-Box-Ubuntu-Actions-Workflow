@@ -82,8 +82,8 @@ createUserNamePassword() {
 		sudo hostname $HOST_NAME
 	fi
 }
-# 下载 sing-box cloudflared cloudflarespeedtesr ngrok
-getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
+# 下载 sing-box cloudflared ngrok
+getStartSing-box_cloudflared_ngrok() {
 	ARCH_RAW=$(uname -m)
 	case "$ARCH_RAW" in
 	'x86_64') ARCH='amd64' ;;
@@ -117,26 +117,7 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 	rm -fv $FILE_NAME
  
 	sudo mkdir -pv /home/$USER_NAME/cloudflared
-	VERSION=$(curl -sL "https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases" | grep -oP '(?<=\/XIU2\/CloudflareSpeedTest\/releases\/tag\/)[^"]+' | head -n 1)
-	echo $VERSION
-	URI_DOWNLOAD="https://github.hscsec.cn/XIU2/CloudflareSpeedTest/releases/download/$VERSION/CloudflareST_$(uname -s)_$ARCH.tar.gz"
-	echo $URI_DOWNLOAD
-	FILE_NAME=$(basename $URI_DOWNLOAD)
-	echo $FILE_NAME
-	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
-	sudo mkdir -pv /home/$USER_NAME/CloudflareSpeedTest
-	sudo sudo tar zxvf $FILE_NAME -C /home/$USER_NAME/CloudflareSpeedTest
-	rm -fv $FILE_NAME
-	cd /home/$USER_NAME/CloudflareSpeedTest
-	CLOUDFLAREST_IP=$(sudo ./CloudflareST -dd -tll 90 | head -n 5 | tail -n 1 | awk '{print $1}')
-	cd -
-	sudo rm -rfv /home/$USER_NAME/CloudflareSpeedTest
-	if [ "$CLOUDFLAREST_IP" != "" ]; then
-		echo $CLOUDFLAREST_IP
-	else
-		CLOUDFLAREST_IP=icook.hk
-	fi
- 
+	
 	if [[ -z "$NGROK_AUTH_TOKEN" ]]; then
 		echo "Please set 'NGROK_AUTH_TOKEN'"
 		exit 5
@@ -256,7 +237,7 @@ SMALLFLOWERCAT1995
 SMALLFLOWERCAT1995
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
-                sleep 10
+                sleep 5
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
 		if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
 			echo $CLOUDFLARED_DOMAIN
@@ -529,7 +510,7 @@ SMALLFLOWERCAT1995
       }
     },
     {
-      "server": "$CLOUDFLAREST_IP",
+      "server": "$R_STEAL_WEBSITE_CERTIFICATES",
       "server_port": $CLOUDFLAREST_PORT,
       "tag": "$SB_VM_PROTOCOL_OUT_TAG",
       "tls": {
@@ -634,7 +615,7 @@ initall
 V_PROTOCOL=vless
 V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 V_PORT=$(get_random_port 0 65535)
-R_STEAL_WEBSITE_CERTIFICATES=www.youjizz.com
+R_STEAL_WEBSITE_CERTIFICATES=youjizz.com
 R_STEAL_WEBSITE_PORT=443
 VM_PROTOCOL=vmess
 VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
