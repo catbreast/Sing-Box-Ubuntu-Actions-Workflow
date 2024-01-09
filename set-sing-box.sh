@@ -257,8 +257,7 @@ EOL
     # 等待
     sleep 10
     # 获取 ngrok 映射信息
-    NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
-    HAS_ERRORS=$(grep "command failed" < /home/${USER_NAME}/ngrok/ngrok.log)
+    HAS_ERRORS=$(curl -s http://127.0.0.1:4040)
 
     if [[ -z "$HAS_ERRORS" ]]; then
         echo "=========================================="
