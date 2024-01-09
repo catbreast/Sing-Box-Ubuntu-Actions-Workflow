@@ -2,12 +2,12 @@
 # 前戏处理
 function initall{
 # 同步时间
-date '+%Y-%m-%d %H:%M:%S'
+BEFORE_TIME=$(date '+%Y-%m-%d %H:%M:%S') ; echo $BEFORE_TIME
 sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 sudo cat << EOL | sudo tee /etc/timezone
 Asia/Shanghai
 EOL
-date '+%Y-%m-%d %H:%M:%S'
+NOW_TIME=$(date '+%Y-%m-%d %H:%M:%S') ; echo $NOW_TIME
 
 # 安装必备工具
 sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
