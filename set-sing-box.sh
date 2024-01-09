@@ -681,17 +681,18 @@ SMALLFLOWERCAT1995
 SMALLFLOWERCAT1995
 		UDP2TCP_INFO=$(u2t_t2u $SB_PORT $U_FORWORD_T_PORT)
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
-#SSH is accessible at: 
-#$HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
-#ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
+SSH is accessible at: 
+$HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
+ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
 VMESS is accessible at: 
 $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
-Sing-Box is accessible at: 
-$HOSTNAME_IP:$SB_PORT -> $SINGBOX_N_DOMAIN:$SINGBOX_N_PORT
+#Sing-Box is accessible at: 
+#$HOSTNAME_IP:$SB_PORT -> $SINGBOX_N_DOMAIN:$SINGBOX_N_PORT
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
+UDP2TCP TCP2UDP is accessible at: 
 $UDP2TCP_INFO
 SMALLFLOWERCAT1995
 		echo "=========================================="
