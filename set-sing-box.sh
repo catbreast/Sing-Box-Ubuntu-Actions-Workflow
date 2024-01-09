@@ -4,7 +4,7 @@ initall() {
 	sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 	sudo cat <<EOL | sudo tee /etc/timezone
 Asia/Shanghai
-EOL
+  EOL
     date '+%Y-%m-%d %H:%M:%S'
 
     # 安装必备工具
@@ -30,28 +30,28 @@ LANGUAGE=zh_CN.UTF-8
 LC_ALL=zh_CN.UTF-8
 LANG=zh_CN.UTF-8
 LC_CTYPE=zh_CN.UTF-8
-EOF
+    EOF
 
     cat << EOF | sudo tee -a /etc/environment
 export LANGUAGE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export LANG=zh_CN.UTF-8
 export LC_CTYPE=zh_CN.UTF-8
-EOF
+    EOF
 
     cat << EOF | sudo tee -a $HOME/.bashrc
 export LANGUAGE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export LANG=zh_CN.UTF-8
 export LC_CTYPE=zh_CN.UTF-8
-EOF
+    EOF
 
     cat << EOF >> $HOME/.profile
 export LANGUAGE=zh_CN.UTF-8
 export LC_ALL=zh_CN.UTF-8
 export LANG=zh_CN.UTF-8
 export LC_CTYPE=zh_CN.UTF-8
-EOF
+    EOF
 
     sudo update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
 
@@ -226,8 +226,8 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok(){
         # Ngrok安装
         curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
 
-# ngrok配置文件生成
-cat << EOL | sudo tee /home/$USER_NAME/ngrok/ngrok.yml > /dev/null
+    # ngrok配置文件生成
+    cat << EOL | sudo tee /home/$USER_NAME/ngrok/ngrok.yml > /dev/null
 authtoken: $NGROK_AUTH_TOKEN
 
 tunnels:
@@ -246,7 +246,8 @@ tunnels:
   sing-box:
     proto: tcp
     addr: $U_FORWORD_T_PORT
-EOL
+    EOL
+
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
 	sudo nohup ngrok start --all --config /home/$USER_NAME/ngrok/ngrok.yml >/dev/null 2>&1 & disown
 	sleep 10
@@ -368,7 +369,7 @@ EOL
     }
   ]
 }
-EOL
+		EOL
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 | sudo tee /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 &
 		disown
@@ -746,32 +747,29 @@ EOL
     }
   ]
 }
-EOL
+    EOL
 		UDP2TCP_INFO=$(u2t_t2u $SB_PORT $U_FORWORD_T_PORT)
-		cat <<EOL | sudo tee result.txt >/dev/null
+    cat <<EOL | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
 ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
-
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
-
 VMESS is accessible at: 
 $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
-
 Sing-Box is accessible at: 
 $HOSTNAME_IP:$SB_PORT -> $SINGBOX_N_DOMAIN:$SINGBOX_N_PORT
-
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
 $UDP2TCP_INFO
-EOL
+    EOL
 		echo "=========================================="
 	else
 		echo "$HAS_ERRORS"
 		exit 6
 	fi
 }
+
 initall
 V_PROTOCOL=vless
 V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
