@@ -256,7 +256,6 @@ EOL
       sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml > /dev/null 2>&1 & disown
       # 等待
       sleep 10
-    fi
 
     HAS_ERRORS=$(grep "command failed" < /home/${USER_NAME}/ngrok/ngrok.log)
 
