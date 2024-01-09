@@ -160,7 +160,8 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 		exit 5
 	else
 		curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
-	fi
+	        sudo mkdir -pv /home/$USER_NAME/ngrok
+        fi
 	cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
 
