@@ -175,8 +175,7 @@ SMALLFLOWERCAT1995
 		V_UUID="$(sing-box generate uuid)"
 		VM_UUID="$(sing-box generate uuid)"
 		R_HEX="$(sing-box generate rand --hex 8)"
-		VM_HEX="$(sing-box generate rand --hex 8)"
-		WS_PATH="$(sing-box generate rand --hex 6)"
+		VM_PATH="$(sing-box generate rand --hex 6)"
 		cat <<SMALLFLOWERCAT1995 | sudo tee /etc/sing-box/config.json >/dev/null
 {
   "log": {
@@ -229,7 +228,7 @@ SMALLFLOWERCAT1995
       ],
       "transport": {
         "type": "$VM_TYPE",
-        "path": "$VM_HEX",
+        "path": "$VM_PATH",
         "max_early_data": 2048,
         "early_data_header_name": "Sec-WebSocket-Protocol"
       }
@@ -544,7 +543,7 @@ SMALLFLOWERCAT1995
             "$CLOUDFLARED_DOMAIN"
           ]
         },
-        "path": "$WS_PATH",
+        "path": "$VM_PATH",
         "type": "$VM_TYPE",
         "max_early_data": 2048,
         "early_data_header_name": "Sec-WebSocket-Protocol"
