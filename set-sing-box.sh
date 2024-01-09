@@ -174,7 +174,7 @@ SMALLFLOWERCAT1995
 		R_HEX="$(sing-box generate rand --hex 8)"
 
 		VM_PROTOCOL=vmess
-		VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
+		VM_PROTOCOL_IN_TAG=$VM_PROTOCOL-in
 		VM_UUID="$(sing-box generate uuid)"
 		VM_TYPE=ws
 		VM_PATH="$(sing-box generate rand --hex 6)"
