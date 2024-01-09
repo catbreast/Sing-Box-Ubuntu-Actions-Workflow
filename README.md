@@ -55,3 +55,5 @@ ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux
 使用 email smtp 发送邮件: https://blog.csdn.net/liuyuinsdu/article/details/113878840  
 youtube 绵阿羊 在sing-box上安装reality和hysteria2: https://www.youtube.com/watch?v=hbrOxWrGmTc  
 文档 绵阿羊 在sing-box上安装reality和hysteria2: https://blog.mareep.net/posts/15209  
+github vveg26/sing-box-reality-hysteria2: https://github.com/vveg26/sing-box-reality-hysteria2  
+github teddysun/across: https://github.com/teddysun/across  
