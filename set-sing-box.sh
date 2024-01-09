@@ -164,9 +164,9 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 authtoken: $NGROK_AUTH_TOKEN
 
 tunnels:
-#  ssh:
-#    proto: tcp
-#    addr: 22
+  ssh:
+    proto: tcp
+    addr: 22
 
   vless:
     proto: tcp
@@ -176,9 +176,9 @@ tunnels:
     proto: tcp
     addr: $VM_PORT
 
-  sing-box:
-    proto: tcp
-    addr: $U_FORWORD_T_PORT
+#  sing-box:
+#    proto: tcp
+#    addr: $U_FORWORD_T_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
         sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
@@ -187,12 +187,12 @@ SMALLFLOWERCAT1995
 	if [[ -z "$HAS_ERRORS" ]]; then
 		echo "=========================================="
 		NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
-		#SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
+		SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
 		VLESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')
 		VMESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')
 		SINGBOX_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="sing-box") | .public_url')
-		#SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
-		#SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
+		SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
+		SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
 		VLESS_N_DOMAIN=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')
 		VLESS_N_PORT=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')
 		VMESS_N_DOMAIN=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')
