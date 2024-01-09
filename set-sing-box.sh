@@ -1,69 +1,69 @@
 #!/usr/bin/env bash
 # 前戏处理
-function initall{
-# 同步时间
-BEFORE_TIME=$(date '+%Y-%m-%d %H:%M:%S') ; echo $BEFORE_TIME
-sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-sudo cat << EOL | sudo tee /etc/timezone
-Asia/Shanghai
-EOL
-NOW_TIME=$(date '+%Y-%m-%d %H:%M:%S') ; echo $NOW_TIME
-
-# 安装必备工具
-sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
-
-# clone udp tcp 互转工具
-#sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
-#sudo bash build-static-bins.sh
-#sudo mv -fv $(find . -iname "tcp2udp") /usr/bin/
-#sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
-#cd -
-#sudo rm -rfv udp-over-tcp
-sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/tcp2udp" -O /usr/bin/tcp2udp ; sudo chmod -v +x /usr/bin/tcp2udp
-sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/udp2tcp" -O /usr/bin/udp2tcp ; sudo chmod -v +x /usr/bin/udp2tcp
-
-# Configuration for locales
-sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
-sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
-sudo locale-gen zh_CN ; sudo locale-gen zh_CN.UTF-8
-
-cat << EOF | sudo tee /etc/default/locale
-LANGUAGE=zh_CN.UTF-8
-LC_ALL=zh_CN.UTF-8
-LANG=zh_CN.UTF-8
-LC_CTYPE=zh_CN.UTF-8
-EOF
-
-cat << EOF | sudo tee -a /etc/environment
-export LANGUAGE=zh_CN.UTF-8
-export LC_ALL=zh_CN.UTF-8
-export LANG=zh_CN.UTF-8
-export LC_CTYPE=zh_CN.UTF-8
-EOF
-
-cat << EOF | sudo tee -a $HOME/.bashrc
-export LANGUAGE=zh_CN.UTF-8
-export LC_ALL=zh_CN.UTF-8
-export LANG=zh_CN.UTF-8
-export LC_CTYPE=zh_CN.UTF-8
-EOF
-
-cat << EOF >> $HOME/.profile
-export LANGUAGE=zh_CN.UTF-8
-export LC_ALL=zh_CN.UTF-8
-export LANG=zh_CN.UTF-8
-export LC_CTYPE=zh_CN.UTF-8
-EOF
-
-sudo update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
-
-locale ; locale -a ; cat /etc/default/locale
-
-source /etc/environment $HOME/.bashrc $HOME/.profile
+initall(){
+   # 同步时间
+   date '+%Y-%m-%d %H:%M:%S'
+   sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+   sudo cat << EOL | sudo tee /etc/timezone
+   Asia/Shanghai
+   EOL
+   date '+%Y-%m-%d %H:%M:%S'
+   
+   # 安装必备工具
+   sudo apt update ; sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
+   
+   # clone udp tcp 互转工具
+   #sudo git clone https://github.com/mullvad/udp-over-tcp.git ; cd udp-over-tcp
+   #sudo bash build-static-bins.sh
+   #sudo mv -fv $(find . -iname "tcp2udp") /usr/bin/
+   #sudo mv -fv $(find . -iname "udp2tcp") /usr/bin/
+   #cd -
+   #sudo rm -rfv udp-over-tcp
+   sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/tcp2udp" -O /usr/bin/tcp2udp ; sudo chmod -v +x /usr/bin/tcp2udp
+   sudo wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts --continue --retry-connrefused --waitretry=1 --timeout=30 --tries=3 "https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/raw/master/udp2tcp" -O /usr/bin/udp2tcp ; sudo chmod -v +x /usr/bin/udp2tcp
+   
+   # Configuration for locales
+   sudo perl -pi -e 's/# zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/g' /etc/locale.gen
+   sudo perl -pi -e 's/en_GB.UTF-8 UTF-8/# en_GB.UTF-8 UTF-8/g' /etc/locale.gen
+   sudo locale-gen zh_CN ; sudo locale-gen zh_CN.UTF-8
+   
+   cat << EOF | sudo tee /etc/default/locale
+   LANGUAGE=zh_CN.UTF-8
+   LC_ALL=zh_CN.UTF-8
+   LANG=zh_CN.UTF-8
+   LC_CTYPE=zh_CN.UTF-8
+   EOF
+   
+   cat << EOF | sudo tee -a /etc/environment
+   export LANGUAGE=zh_CN.UTF-8
+   export LC_ALL=zh_CN.UTF-8
+   export LANG=zh_CN.UTF-8
+   export LC_CTYPE=zh_CN.UTF-8
+   EOF
+   
+   cat << EOF | sudo tee -a $HOME/.bashrc
+   export LANGUAGE=zh_CN.UTF-8
+   export LC_ALL=zh_CN.UTF-8
+   export LANG=zh_CN.UTF-8
+   export LC_CTYPE=zh_CN.UTF-8
+   EOF
+   
+   cat << EOF >> $HOME/.profile
+   export LANGUAGE=zh_CN.UTF-8
+   export LC_ALL=zh_CN.UTF-8
+   export LANG=zh_CN.UTF-8
+   export LC_CTYPE=zh_CN.UTF-8
+   EOF
+   
+   sudo update-locale LANG=zh_CN.UTF-8 LC_ALL=zh_CN.UTF-8 LANGUAGE=zh_CN.UTF-8 LC_CTYPE=zh_CN.UTF-8
+   
+   locale ; locale -a ; cat /etc/default/locale
+   
+   source /etc/environment $HOME/.bashrc $HOME/.profile
 }
 
 # 给变量赋值一个随机的非占用端口
-function get_random_port {
+get_random_port(){
    #指定端口范围
    min=$1
    max=$2
@@ -83,7 +83,7 @@ function get_random_port {
 }
 
 #实现 TCP UDP端口监听互转的函数
-function u2t_t2u {
+u2t_t2u(){
   # 检查程序是否存在
   if ! command -v udp2tcp &> /dev/null
   then
@@ -121,7 +121,7 @@ function u2t_t2u {
 }
 
 # 创建用户添加密码
-function createUserNamePassword{
+createUserNamePassword(){
 
     # 判断用户名
     if [[ -z "${USER_NAME}" ]]; then
@@ -153,7 +153,7 @@ function createUserNamePassword{
 }
 
 # 获取配置启动ngrok 和 sing-box
-function getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok{
+getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok(){
     # 系统架构判断 
     ARCH_RAW=$(uname -m)
     case "${ARCH_RAW}" in
