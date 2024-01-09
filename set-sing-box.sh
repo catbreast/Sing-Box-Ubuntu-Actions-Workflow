@@ -158,8 +158,8 @@ getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok() {
 		exit 5
 	else
 		curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list && sudo apt update && sudo apt install ngrok
-	  sudo mkdir -pv /home/$USER_NAME/ngrok
-  fi
+	        sudo mkdir -pv /home/$USER_NAME/ngrok
+        fi
 	cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
 
@@ -181,9 +181,9 @@ tunnels:
     addr: $U_FORWORD_T_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
-	sudo nohup ngrok start --all --config /home/$USER_NAME/ngrok/ngrok.yml >/dev/null 2>&1 & disown
+        sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
 	sleep 10
-	HAS_ERRORS=$(curl -s http://127.0.0.1:4040)
+        HAS_ERRORS=$(grep "command failed" < /home/${USER_NAME}/ngrok/ngrok.log)
 	if [[ -z "$HAS_ERRORS" ]]; then
 		echo "=========================================="
 		NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
