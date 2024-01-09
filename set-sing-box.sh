@@ -159,8 +159,8 @@ SMALLFLOWERCAT1995
         HAS_ERRORS=$(grep "command failed" < /home/${USER_NAME}/ngrok/ngrok.log)
 	if [[ -z "$HAS_ERRORS" ]]; then
 		echo "=========================================="
-  		NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
-		VLESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')
+  		NGROK_INFO="$(curl -s http://127.0.0.1:4040/api/tunnels)"
+		VLESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')"
                 V_PROTOCOL=vless
 		V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 		V_PORT="$(get_random_port 0 65535)"
@@ -253,8 +253,8 @@ SMALLFLOWERCAT1995
 		SB_ALL_PROTOCOL_OUT_TYPE=selector
 		SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
 		SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
-		VLESS_N_DOMAIN=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')
-		VLESS_N_PORT=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')
+		VLESS_N_DOMAIN="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')"
+		VLESS_N_PORT="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')"
 
 		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
 
@@ -619,15 +619,15 @@ SMALLFLOWERCAT1995
   }
 }
 SMALLFLOWERCAT1995
-		HOSTNAME_IP=$(hostname -I)
-		REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
-		F_DATE=$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')
-		SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
-		SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
-		SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
-  		VMESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')
-		VMESS_N_DOMAIN=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')
-		VMESS_N_PORT=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')
+		HOSTNAME_IP="$(hostname -I)"
+		REPORT_DATE="$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')"
+		F_DATE="$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')"
+		SSH_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')"
+		SSH_N_DOMAIN="$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')"
+		SSH_N_PORT="$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')"
+  		VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
+		VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
+		VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
