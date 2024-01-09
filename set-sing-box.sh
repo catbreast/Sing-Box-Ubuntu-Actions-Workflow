@@ -238,6 +238,7 @@ SMALLFLOWERCAT1995
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sleep 5
+		bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
 		if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
 			echo $CLOUDFLARED_DOMAIN
