@@ -159,23 +159,26 @@ SMALLFLOWERCAT1995
         HAS_ERRORS=$(grep "command failed" < /home/${USER_NAME}/ngrok/ngrok.log)
 	if [[ -z "$HAS_ERRORS" ]]; then
 		echo "=========================================="
-		NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
-		SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
+  		NGROK_INFO=$(curl -s http://127.0.0.1:4040/api/tunnels)
 		VLESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')
-		VMESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')
-		SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
-		SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
-		VLESS_N_DOMAIN=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')
-		VLESS_N_PORT=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')
-		VMESS_N_DOMAIN=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')
-		VMESS_N_PORT=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')
+                V_PROTOCOL=vless
+		V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
+		V_PORT="$(get_random_port 0 65535)"
+		V_UUID="$(sing-box generate uuid)"
+
+		R_STEAL_WEBSITE_CERTIFICATES=pornhub.com
+		R_STEAL_WEBSITE_PORT=443
 		R_PRIVATEKEY_PUBLICKEY="$(sing-box generate reality-keypair)"
 		R_PRIVATEKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $2}')"
-		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
-		V_UUID="$(sing-box generate uuid)"
-		VM_UUID="$(sing-box generate uuid)"
 		R_HEX="$(sing-box generate rand --hex 8)"
+
+		VM_PROTOCOL=vmess
+		VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
+		VM_PORT="$(get_random_port 0 65535)"
+		VM_UUID="$(sing-box generate uuid)"
+		VM_TYPE=ws
 		VM_PATH="$(sing-box generate rand --hex 6)"
+  
 		cat <<SMALLFLOWERCAT1995 | sudo tee /etc/sing-box/config.json >/dev/null
 {
   "log": {
@@ -246,6 +249,17 @@ SMALLFLOWERCAT1995
   ]
 }
 SMALLFLOWERCAT1995
+		SB_ALL_PROTOCOL_OUT_TAG=sing-box-all-proxy
+		SB_ALL_PROTOCOL_OUT_TYPE=selector
+		SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
+		SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
+		VLESS_N_DOMAIN=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')
+		VLESS_N_PORT=$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')
+
+		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
+
+		VM_WEBSITE=icook.hk
+		CLOUDFLAREST_PORT=443
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sudo kill -9 $(sudo ps -ef | grep -v grep | grep cloudflared | awk '{print $2}')
@@ -260,95 +274,119 @@ SMALLFLOWERCAT1995
 		fi
 		cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
 {
-  "log": {
-    "level": "debug",
-    "timestamp": true
-  },
-  "experimental": {
-    "clash_api": {
-      "external_controller": "0.0.0.0:9090",
-      "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
-      "external_ui_download_detour": "direct",
-      "external_ui": "ui",
-      "secret": "",
-      "default_mode": "rule"
+  "outbounds": [
+    {
+      "tag": "$SB_ALL_PROTOCOL_OUT_TAG",
+      "type": "$SB_ALL_PROTOCOL_OUT_TYPE",
+      "outbounds": [
+        "auto",
+        "direct",
+        "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_VM_PROTOCOL_OUT_TAG"
+      ]
     },
-    "cache_file": {
-      "enabled": true,
-      "store_fakeip": false
+    {
+      "type": "$V_PROTOCOL",
+      "tag": "$SB_V_PROTOCOL_OUT_TAG",
+      "uuid": "$V_UUID",
+      "flow": "xtls-rprx-vision",
+      "packet_encoding": "xudp",
+      "server": "$VLESS_N_DOMAIN",
+      "server_port": $VLESS_N_PORT,
+      "tls": {
+        "enabled": true,
+        "server_name": "$R_STEAL_WEBSITE_CERTIFICATES",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+        "reality": {
+          "enabled": true,
+          "public_key": "$R_PUBLICKEY",
+          "short_id": "$R_HEX"
+        }
+      }
+    },
+    {
+      "server": "$VM_WEBSITE",
+      "server_port": $CLOUDFLAREST_PORT,
+      "tag": "$SB_VM_PROTOCOL_OUT_TAG",
+      "tls": {
+        "enabled": true,
+        "server_name": "$CLOUDFLARED_DOMAIN",
+        "insecure": true,
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "packet_encoding": "packetaddr",
+      "transport": {
+        "headers": {
+          "Host": [
+            "$CLOUDFLARED_DOMAIN"
+          ]
+        },
+        "path": "$VM_PATH",
+        "type": "$VM_TYPE",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol"
+      },
+      "type": "$VM_PROTOCOL",
+      "security": "auto",
+      "uuid": "$VM_UUID"
+    },
+    {
+      "tag": "direct",
+      "type": "direct"
+    },
+    {
+      "tag": "block",
+      "type": "block"
+    },
+    {
+      "tag": "dns-out",
+      "type": "dns"
+    },
+    {
+      "tag": "auto",
+      "type": "urltest",
+      "outbounds": [
+        "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_VM_PROTOCOL_OUT_TAG"
+      ],
+      "url": "http://www.gstatic.com/generate_204",
+      "interval": "1m",
+      "tolerance": 50
+    },
+    {
+      "tag": "WeChat",
+      "type": "selector",
+      "outbounds": [
+        "direct",
+        "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_VM_PROTOCOL_OUT_TAG"
+      ]
+    },
+    {
+      "tag": "Apple",
+      "type": "selector",
+      "outbounds": [
+        "direct",
+        "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_VM_PROTOCOL_OUT_TAG"
+      ]
+    },
+    {
+      "tag": "Microsoft",
+      "type": "selector",
+      "outbounds": [
+        "direct",
+        "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_VM_PROTOCOL_OUT_TAG"
+      ]
     }
-  },
-  "dns": {
-    "servers": [
-      {
-        "tag": "proxyDns",
-        "address": "https://8.8.8.8/dns-query",
-        "detour": "$SB_ALL_PROTOCOL_OUT_TAG"
-      },
-      {
-        "tag": "localDns",
-        "address": "https://223.5.5.5/dns-query",
-        "detour": "direct"
-      },
-      {
-        "tag": "block",
-        "address": "rcode://success"
-      },
-      {
-        "tag": "remote",
-        "address": "fakeip"
-      }
-    ],
-    "rules": [
-      {
-        "domain": [
-          "ghproxy.com",
-          "cdn.jsdelivr.net",
-          "testingcf.jsdelivr.net"
-        ],
-        "server": "localDns"
-      },
-      {
-        "rule_set": "geosite-category-ads-all",
-        "server": "block"
-      },
-      {
-        "outbound": "any",
-        "server": "localDns",
-        "disable_cache": true
-      },
-      {
-        "rule_set": "geosite-cn",
-        "server": "localDns"
-      },
-      {
-        "clash_mode": "direct",
-        "server": "localDns"
-      },
-      {
-        "clash_mode": "global",
-        "server": "proxyDns"
-      },
-      {
-        "rule_set": "geosite-geolocation-!cn",
-        "server": "proxyDns"
-      },
-      {
-        "query_type": [
-          "A",
-          "AAAA"
-        ],
-        "server": "remote"
-      }
-    ],
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "198.18.0.0/15",
-      "inet6_range": "fc00::/18"
-    },
-    "independent_cache": true,
-    "strategy": "ipv4_only"
-  },
+  ],
   "route": {
     "auto_detect_interface": true,
     "final": "$SB_ALL_PROTOCOL_OUT_TAG",
@@ -490,121 +528,106 @@ SMALLFLOWERCAT1995
       "users": []
     }
   ],
-  "outbounds": [
-    {
-      "tag": "$SB_ALL_PROTOCOL_OUT_TAG",
-      "type": "$SB_ALL_PROTOCOL_OUT_TYPE",
-      "outbounds": [
-        "auto",
-        "direct",
-        "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG"
-      ]
+  "log": {
+    "level": "debug",
+    "timestamp": true
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
+      "external_ui_download_detour": "direct",
+      "external_ui": "ui",
+      "secret": "",
+      "default_mode": "rule"
     },
-    {
-      "type": "$V_PROTOCOL",
-      "tag": "$SB_V_PROTOCOL_OUT_TAG",
-      "uuid": "$V_UUID",
-      "flow": "xtls-rprx-vision",
-      "packet_encoding": "xudp",
-      "server": "$VLESS_N_DOMAIN",
-      "server_port": $VLESS_N_PORT,
-      "tls": {
-        "enabled": true,
-        "server_name": "$R_STEAL_WEBSITE_CERTIFICATES",
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        },
-        "reality": {
-          "enabled": true,
-          "public_key": "$R_PUBLICKEY",
-          "short_id": "$R_HEX"
-        }
-      }
-    },
-    {
-      "server": "${VM_WEBSITE}",
-      "server_port": $CLOUDFLAREST_PORT,
-      "tag": "$SB_VM_PROTOCOL_OUT_TAG",
-      "tls": {
-        "enabled": true,
-        "server_name": "$CLOUDFLARED_DOMAIN",
-        "insecure": true,
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        }
-      },
-      "packet_encoding": "packetaddr",
-      "transport": {
-        "headers": {
-          "Host": [
-            "$CLOUDFLARED_DOMAIN"
-          ]
-        },
-        "path": "$VM_PATH",
-        "type": "$VM_TYPE",
-        "max_early_data": 2048,
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      },
-      "type": "$VM_PROTOCOL",
-      "security": "auto",
-      "uuid": "$VM_UUID"
-    },
-    {
-      "tag": "direct",
-      "type": "direct"
-    },
-    {
-      "tag": "block",
-      "type": "block"
-    },
-    {
-      "tag": "dns-out",
-      "type": "dns"
-    },
-    {
-      "tag": "auto",
-      "type": "urltest",
-      "outbounds": [
-        "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG"
-      ],
-      "url": "http://www.gstatic.com/generate_204",
-      "interval": "1m",
-      "tolerance": 50
-    },
-    {
-      "tag": "WeChat",
-      "type": "selector",
-      "outbounds": [
-        "direct",
-        "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG"
-      ]
-    },
-    {
-      "tag": "Apple",
-      "type": "selector",
-      "outbounds": [
-        "direct",
-        "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG"
-      ]
-    },
-    {
-      "tag": "Microsoft",
-      "type": "selector",
-      "outbounds": [
-        "direct",
-        "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG"
-      ]
+    "cache_file": {
+      "enabled": true,
+      "store_fakeip": false
     }
-  ]
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "proxyDns",
+        "address": "https://8.8.8.8/dns-query",
+        "detour": "$SB_ALL_PROTOCOL_OUT_TAG"
+      },
+      {
+        "tag": "localDns",
+        "address": "https://223.5.5.5/dns-query",
+        "detour": "direct"
+      },
+      {
+        "tag": "block",
+        "address": "rcode://success"
+      },
+      {
+        "tag": "remote",
+        "address": "fakeip"
+      }
+    ],
+    "rules": [
+      {
+        "domain": [
+          "ghproxy.com",
+          "cdn.jsdelivr.net",
+          "testingcf.jsdelivr.net"
+        ],
+        "server": "localDns"
+      },
+      {
+        "rule_set": "geosite-category-ads-all",
+        "server": "block"
+      },
+      {
+        "outbound": "any",
+        "server": "localDns",
+        "disable_cache": true
+      },
+      {
+        "rule_set": "geosite-cn",
+        "server": "localDns"
+      },
+      {
+        "clash_mode": "direct",
+        "server": "localDns"
+      },
+      {
+        "clash_mode": "global",
+        "server": "proxyDns"
+      },
+      {
+        "rule_set": "geosite-geolocation-!cn",
+        "server": "proxyDns"
+      },
+      {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "remote"
+      }
+    ],
+    "fakeip": {
+      "enabled": true,
+      "inet4_range": "198.18.0.0/15",
+      "inet6_range": "fc00::/18"
+    },
+    "independent_cache": true,
+    "strategy": "ipv4_only"
+  }
 }
 SMALLFLOWERCAT1995
+		HOSTNAME_IP=$(hostname -I)
+		REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
+		F_DATE=$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')
+		SSH_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')
+		SSH_N_DOMAIN=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')
+		SSH_N_PORT=$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')
+  		VMESS_N_INFO=$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')
+		VMESS_N_DOMAIN=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')
+		VMESS_N_PORT=$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
@@ -626,24 +649,6 @@ SMALLFLOWERCAT1995
 	fi
 }
 initall
-V_PROTOCOL=vless
-V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
-V_PORT=$(get_random_port 0 65535)
-R_STEAL_WEBSITE_CERTIFICATES=pornhub.com
-R_STEAL_WEBSITE_PORT=443
-VM_WEBSITE=icook.hk
-VM_PROTOCOL=vmess
-VM_PROTOCOL_IN_TAG=$V_PROTOCOL-in
-VM_PORT=$(get_random_port 0 65535)
-VM_TYPE=ws
-SB_ALL_PROTOCOL_OUT_TAG=sing-box-all-proxy
-SB_ALL_PROTOCOL_OUT_TYPE=selector
-SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
-SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
-CLOUDFLAREST_PORT=443
-HOSTNAME_IP=$(hostname -I)
-REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
-F_DATE=$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')
 createUserNamePassword
 getStartSing-box_cloudflared_ngrok
 rm -fv set-sing-box.sh
