@@ -630,5 +630,5 @@ HOSTNAME_IP=$(hostname -I)
 REPORT_DATE=$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')
 F_DATE=$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')
 createUserNamePassword
-getStartSing-box_cloudflared_CloudflareSpeedTest_ngrok
+getStartSing-box_cloudflared_ngrok
 rm -fv set-sing-box.sh
