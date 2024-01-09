@@ -71,12 +71,10 @@ u2t_t2u() {
 	TCP_PORT=$2
 	TCP_LISTEN_ADDR="0.0.0.0:$TCP_PORT"
 	UDP_FORWARD_ADDR="127.0.0.1:$UDP_PORT"
-	sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR >/dev/null 2>&1 &
-	disown
+	sudo nohup tcp2udp --tcp-listen $TCP_LISTEN_ADDR --udp-forward $UDP_FORWARD_ADDR >/dev/null 2>&1 & disown
 	UDP_LISTEN_ADDR="0.0.0.0:$UDP_PORT"
 	TCP_FORWARD_ADDR="127.0.0.1:$TCP_PORT"
-	sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR >/dev/null 2>&1 &
-	disown
+	sudo nohup udp2tcp --udp-listen $UDP_LISTEN_ADDR --tcp-forward $TCP_FORWARD_ADDR >/dev/null 2>&1 & disown
 	echo "TCP to UDP: $TCP_LISTEN_ADDR -> $UDP_FORWARD_ADDR"
 	echo "UDP to TCP: $UDP_FORWARD_ADDR -> $TCP_LISTEN_ADDR"
 }
@@ -183,8 +181,7 @@ tunnels:
     addr: $U_FORWORD_T_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
-	sudo nohup ngrok start --all --config /home/$USER_NAME/ngrok/ngrok.yml >/dev/null 2>&1 &
-	disown
+	sudo nohup ngrok start --all --config /home/$USER_NAME/ngrok/ngrok.yml >/dev/null 2>&1 & disown
 	sleep 10
 	HAS_ERRORS=$(curl -s http://127.0.0.1:4040)
 	if [[ -z "$HAS_ERRORS" ]]; then
@@ -306,8 +303,7 @@ SMALLFLOWERCAT1995
 }
 SMALLFLOWERCAT1995
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
-		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 | sudo tee /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 &
-		disown
+		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 | sudo tee /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
 		if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
 			echo $CLOUDFLARED_DOMAIN
