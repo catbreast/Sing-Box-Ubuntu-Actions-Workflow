@@ -152,9 +152,9 @@ tunnels:
     proto: tcp
     addr: $V_PORT
 
-  vmess:
-    proto: tcp
-    addr: $VM_PORT
+  # vmess:
+  #   proto: tcp
+  #   addr: $VM_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
         sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
@@ -255,9 +255,9 @@ SMALLFLOWERCAT1995
 		VLESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vless") | .public_url')"
 		VLESS_N_DOMAIN="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')"
 		VLESS_N_PORT="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')"
-                VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
-		VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
-		VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
+                # VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
+		# VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
+		# VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
 		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
 
 		VM_WEBSITE=icook.hk
@@ -268,12 +268,11 @@ SMALLFLOWERCAT1995
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sleep 5
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
-		if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
-			echo $CLOUDFLARED_DOMAIN
-		else
-			CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
-		fi
-                CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
+		# if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
+		# 	echo $CLOUDFLARED_DOMAIN
+		# else
+		# 	CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
+		# fi
 		cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
 {
   "outbounds": [
@@ -635,8 +634,8 @@ ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
 
-VMESS is accessible at: 
-$HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
+# VMESS is accessible at: 
+# $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
 
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
