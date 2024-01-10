@@ -38,7 +38,11 @@
 16. 新目录结构  
 
         .
-        ├── set-sing-box.sh                             # 搭建脚本  
+        ├── .github                                     # github actions 配置目录  
+        │   ├── workflows                               # github actions 配置文件目录  
+        │   ├── actions.yml                             # github actions workflow 配置  
+        │   └── remove-old-workflow.yml                 # github actions 移除老旧的 workflow  
+        ├── set-sing-box.sh                             # 搭建配置 sing-box 脚本  
         └── README.md                                   # 这个是说明文件   
 
 # 更新
