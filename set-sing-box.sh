@@ -635,8 +635,8 @@ ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
 
-# VMESS is accessible at: 
-# $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
+VMESS is accessible at: 
+$HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
 
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
