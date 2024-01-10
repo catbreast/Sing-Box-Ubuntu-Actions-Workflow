@@ -152,9 +152,9 @@ tunnels:
     proto: tcp
     addr: $V_PORT
 
- # vmess:
- #   proto: tcp
- #   addr: $VM_PORT
+ vmess:
+   proto: tcp
+   addr: $VM_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
         sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
@@ -266,12 +266,12 @@ SMALLFLOWERCAT1995
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sleep 5
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
-		# if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
-		# 	echo $CLOUDFLARED_DOMAIN
-		# else
-		# 	CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
-		# fi
-  
+		if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
+			echo $CLOUDFLARED_DOMAIN
+		else
+			CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
+		fi
+                CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
 		cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
 {
   "outbounds": [
@@ -625,9 +625,9 @@ SMALLFLOWERCAT1995
 		SSH_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')"
 		SSH_N_DOMAIN="$(echo "$SSH_N_INFO" | awk -F[/:] '{print $4}')"
 		SSH_N_PORT="$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')"
-                # VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
-		# VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
-		# VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
+                VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
+		VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
+		VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
