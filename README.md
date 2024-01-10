@@ -60,6 +60,9 @@
 # 声明
 本项目仅作学习交流使用，用于查找资料，学习知识，不做任何违法行为。所有资源均来自互联网，仅供大家交流学习使用，出现违法问题概不负责。  
 
+# 注意
+fork本项目的人越多，同时运行 actions 导致本人项目被ban掉的可能越大，所以，你可以创建新项目，把文件复制过去，自己享用
+
 # 感谢&参考  
 sing-box: https://sing-box.sagernet.org/  
 ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux  
