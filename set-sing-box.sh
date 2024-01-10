@@ -629,7 +629,7 @@ SMALLFLOWERCAT1995
 		cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
 $HOSTNAME_IP:22 -> $SSH_N_DOMAIN:$SSH_N_PORT
-ssh -p $SSH_N_PORT -o ServerAliveInterval=60 $USER_NAME@$SSH_N_DOMAIN
+ssh $USER_NAME@$SSH_N_DOMAIN -o ServerAliveInterval=60 -p $SSH_N_PORT
 
 VLESS is accessible at: 
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
