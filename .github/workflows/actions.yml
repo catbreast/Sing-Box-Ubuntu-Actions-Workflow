@@ -27,7 +27,7 @@ jobs:
         run: |
           curl -SL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H "Connection: keep-alive" -k "https://raw.githubusercontent.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/master/set-sing-box.sh" -o set-sing-box.sh -O
           chmod u+x set-sing-box.sh
-          sudo su root bash -c "bash set-sing-box.sh"
+          bash set-sing-box.sh
         env:
           USER_NAME: ${{ secrets.USER_NAME }}
           USER_PW: ${{ secrets.USER_PW }}
