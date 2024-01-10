@@ -96,6 +96,7 @@ EOL
 }
 # 下载 sing-box cloudflared ngrok
 getStartSing-box_cloudflared_ngrok() {
+	sudo su root bash -c "bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)"
 	ARCH_RAW=$(uname -m)
 	case "$ARCH_RAW" in
 	'x86_64') ARCH='amd64' ;;
@@ -266,7 +267,6 @@ SMALLFLOWERCAT1995
                 sudo kill -9 $(sudo ps -ef | grep -v grep | grep cloudflared | awk '{print $2}')
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sleep 5
-		sudo bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)
 		CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
 		if [ "$CLOUDFLARED_DOMAIN" != "" ]; then
 			echo $CLOUDFLARED_DOMAIN
