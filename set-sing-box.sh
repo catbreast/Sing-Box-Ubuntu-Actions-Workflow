@@ -152,9 +152,9 @@ tunnels:
     proto: tcp
     addr: $V_PORT
 
- vmess:
-   proto: tcp
-   addr: $VM_PORT
+  vmess:
+    proto: tcp
+    addr: $VM_PORT
 SMALLFLOWERCAT1995
 	sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
         sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log > /dev/null 2>&1 & disown
