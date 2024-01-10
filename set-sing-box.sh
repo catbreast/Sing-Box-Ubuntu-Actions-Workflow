@@ -168,7 +168,7 @@ SMALLFLOWERCAT1995
 		V_PROTOCOL_IN_TAG=$V_PROTOCOL-in
 		V_UUID="$(sing-box generate uuid)"
 
-		R_STEAL_WEBSITE_CERTIFICATES=pornhub.com
+		R_STEAL_WEBSITE_CERTIFICATES=itunes.apple.com
 		R_STEAL_WEBSITE_PORT=443
 		R_PRIVATEKEY_PUBLICKEY="$(sing-box generate reality-keypair)"
 		R_PRIVATEKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $2}')"
@@ -210,47 +210,45 @@ SMALLFLOWERCAT1995
             "server_port": $R_STEAL_WEBSITE_PORT
           },
           "private_key": "$R_PRIVATEKEY",
-          "short_id": [
-            "$R_HEX"
-          ]
+          "short_id": ["$R_HEX"]
         }
       }
     },
     {
-      "sniff": true,
-      "sniff_override_destination": true,
-      "type": "$VM_PROTOCOL",
-      "tag": "$VM_PROTOCOL_IN_TAG",
-      "listen": "::",
-      "listen_port": $VM_PORT,
-      "users": [
-        {
-          "uuid": "$VM_UUID",
-          "alterId": 0
+        "sniff": true,
+        "sniff_override_destination": true,
+        "type": "$VM_PROTOCOL",
+        "tag": "$VM_PROTOCOL_IN_TAG",
+        "listen": "::",
+        "listen_port": $VM_PORT,
+        "users": [
+            {
+                "uuid": "$VM_UUID",
+                "alterId": 0
+            }
+        ],
+        "transport": {
+            "type": "$VM_TYPE",
+            "path": "$VM_PATH",
+            "max_early_data":2048,
+            "early_data_header_name":"Sec-WebSocket-Protocol"
         }
-      ],
-      "transport": {
-        "type": "$VM_TYPE",
-        "path": "$VM_PATH",
-        "max_early_data": 2048,
-        "early_data_header_name": "Sec-WebSocket-Protocol"
-      }
     }
   ],
-  "outbounds": [
-    {
-      "type": "direct",
-      "tag": "direct"
-    },
-    {
-      "type": "block",
-      "tag": "block"
-    }
-  ]
+    "outbounds": [
+        {
+            "type": "direct",
+            "tag": "direct"
+        },
+        {
+            "type": "block",
+            "tag": "block"
+        }
+    ]
 }
 SMALLFLOWERCAT1995
 
-		SB_ALL_PROTOCOL_OUT_TAG=sing-box-all-proxy
+		SB_ALL_PROTOCOL_OUT_TAG=proxy
 		SB_ALL_PROTOCOL_OUT_TYPE=selector
 		SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
 		SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
@@ -261,7 +259,7 @@ SMALLFLOWERCAT1995
 		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
 
 		VM_WEBSITE=icook.hk
-		CLOUDFLAREST_PORT=443
+		VM_WEBSITE_PORT=443
 		sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
 		sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 > /home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
                 sudo kill -9 $(sudo ps -ef | grep -v grep | grep cloudflared | awk '{print $2}')
@@ -311,7 +309,7 @@ SMALLFLOWERCAT1995
     },
     {
       "server": "$VM_WEBSITE",
-      "server_port": $CLOUDFLAREST_PORT,
+      "server_port": $VM_WEBSITE_PORT,
       "tag": "$SB_VM_PROTOCOL_OUT_TAG",
       "tls": {
         "enabled": true,
@@ -329,8 +327,8 @@ SMALLFLOWERCAT1995
             "$CLOUDFLARED_DOMAIN"
           ]
         },
-        "path": "$VM_PATH",
         "type": "$VM_TYPE",
+        "path": "$VM_PATH",
         "max_early_data": 2048,
         "early_data_header_name": "Sec-WebSocket-Protocol"
       },
@@ -363,7 +361,7 @@ SMALLFLOWERCAT1995
     },
     {
       "tag": "WeChat",
-      "type": "selector",
+      "type": "$SB_ALL_PROTOCOL_OUT_TYPE",
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
@@ -372,7 +370,7 @@ SMALLFLOWERCAT1995
     },
     {
       "tag": "Apple",
-      "type": "selector",
+      "type": "$SB_ALL_PROTOCOL_OUT_TYPE",
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
@@ -381,12 +379,38 @@ SMALLFLOWERCAT1995
     },
     {
       "tag": "Microsoft",
-      "type": "selector",
+      "type": "$SB_ALL_PROTOCOL_OUT_TYPE",
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
+    }
+  ],
+  "inbounds": [
+    {
+      "type": "tun",
+      "inet4_address": "172.19.0.1/30",
+      "mtu": 9000,
+      "auto_route": true,
+      "strict_route": true,
+      "sniff": true,
+      "endpoint_independent_nat": false,
+      "stack": "system",
+      "platform": {
+        "http_proxy": {
+          "enabled": true,
+          "server": "0.0.0.0",
+          "server_port": 2080
+        }
+      }
+    },
+    {
+      "type": "mixed",
+      "listen": "0.0.0.0",
+      "listen_port": 2080,
+      "sniff": true,
+      "users": []
     }
   ],
   "route": {
@@ -504,32 +528,6 @@ SMALLFLOWERCAT1995
       }
     ]
   },
-  "inbounds": [
-    {
-      "type": "tun",
-      "inet4_address": "172.19.0.1/30",
-      "mtu": 9000,
-      "auto_route": true,
-      "strict_route": true,
-      "sniff": true,
-      "endpoint_independent_nat": false,
-      "stack": "system",
-      "platform": {
-        "http_proxy": {
-          "enabled": true,
-          "server": "0.0.0.0",
-          "server_port": 2080
-        }
-      }
-    },
-    {
-      "type": "mixed",
-      "listen": "0.0.0.0",
-      "listen_port": 2080,
-      "sniff": true,
-      "users": []
-    }
-  ],
   "log": {
     "level": "debug",
     "timestamp": true
