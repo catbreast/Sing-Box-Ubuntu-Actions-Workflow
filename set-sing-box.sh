@@ -144,7 +144,7 @@ EOL
 # 下载 CloudflareSpeedTest sing-box cloudflared ngrok 配置并启用
 getAndStart() {
     # 启用 TCP BBR 拥塞控制算法，参考 https://github.com/teddysun/across
-    #sudo su root bash -c "bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)"
+    sudo su root bash -c "bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)"
     # 判断系统 cpu 架构 ARCH_RAW ，并重新赋值架构名 ARCH
     ARCH_RAW=$(uname -m)
     case "$ARCH_RAW" in
@@ -260,8 +260,7 @@ SMALLFLOWERCAT1995
     # 睡 10 秒让 ngrok 充分运行
     sleep 10
     # 使用grep命令在 ngrok 日志文件中查找运行失败时包含的 "command failed" 字符串行，并将结果存储在变量 HAS_ERRORS 中
-    cat /home/${USER_NAME}/ngrok/ngrok.log
-    HAS_ERRORS=$(grep "command failed" </home/${USER_NAME}/ngrok/ngrok.log)
+    HAS_ERRORS=$(grep "error" </home/${USER_NAME}/ngrok/ngrok.log)
     # 检查变量HAS_ERRORS是否为空
     # 为空（即没有找到"command failed"字符串），则执行下一条命令
     # 不为空打印 HAS_ERRORS 内容，返回退出号
