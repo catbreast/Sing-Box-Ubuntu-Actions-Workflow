@@ -49,7 +49,7 @@
     1. 出于安全考虑还是使用邮箱把发送内容发给自己的邮箱，生成的配置文件仅支持sing-box客户端  
     2. 维持的时间还是不稳定，最长维持 44min42s  
     3. 修改发件内容为文本附近形式  
-    4. 修改了描述文件，提供详细的描述，方便他人，呜呜，我真善良  
+    4. 修改了描述文件，提供详细的描述，方便他人
 
 # 缺陷
     1. 经历了许多次无奈，反复折磨，tcp和udp互转，我终于认清了现实，
@@ -63,12 +63,12 @@
 本项目仅作学习交流使用，用于查找资料，学习知识，不做任何违法行为。所有资源均来自互联网，仅供大家交流学习使用，出现违法问题概不负责。  
 
 # 注意
-fork本项目的人越多，多人 fork 的同一项目一起运行 actions 时导致本人项目被ban掉的可能性越大，所以，你可以创建新项目，把文件复制过去，自己享用
+多人 fork 的同一项目一起运行 actions 时，可能会导致本人项目被ban掉，所以，你可以创建新项目，把文件复制过去，自己享用
 
 # 感谢&参考  
 sing-box: https://sing-box.sagernet.org/  
 ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux  
-cloudflared: https://github.com/cloudflare/cloudflared
+cloudflared: https://github.com/cloudflare/cloudflared  
 使用 email smtp 发送邮件: https://blog.csdn.net/liuyuinsdu/article/details/113878840  
 youtube 绵阿羊 在sing-box上安装reality和hysteria2: https://www.youtube.com/watch?v=hbrOxWrGmTc  
 文档 绵阿羊 在sing-box上安装reality和hysteria2: https://blog.mareep.net/posts/15209  
