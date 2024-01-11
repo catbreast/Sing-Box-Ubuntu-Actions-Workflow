@@ -402,7 +402,8 @@ SMALLFLOWERCAT1995
         SSH_N_PORT="$(echo "$SSH_N_INFO" | awk -F[/:] '{print $5}')"
     else
         echo "$HAS_ERRORS"
-        #exit 6
+        # exit 6
+        VLESS_N_PORT=$V_PORT
     fi
     # 启动 sing-box 服务
     sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
