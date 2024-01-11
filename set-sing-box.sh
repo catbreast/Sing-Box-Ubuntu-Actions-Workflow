@@ -141,8 +141,8 @@ EOL
         # 以 sudo 权限执行免密码脚本并删除
 	sudo bash -c "bash test.sh ; rm -rfv test.sh"
 }
-# 下载 sing-box cloudflared ngrok
-getStartSing-box_cloudflared_ngrok() {
+# 下载 CloudflareSpeedTest sing-box cloudflared ngrok 配置并启用
+getAndStart() {
         # 启用 TCP BBR 拥塞控制算法，参考 https://github.com/teddysun/across
 	sudo su root bash -c "bash <(curl -L -s https://raw.githubusercontent.com/teddysun/across/master/bbr.sh)"
         # 判断系统 cpu 架构 ARCH_RAW ，并重新赋值架构名 ARCH
@@ -822,8 +822,8 @@ SMALLFLOWERCAT1995
 initall
 # 初始化用户密码
 createUserNamePassword
-# 下载 sing-box cloudflared ngrok
-getStartSing-box_cloudflared_ngrok
+# 下载 CloudflareSpeedTest sing-box cloudflared ngrok 配置并启用
+getAndStart
 # 删除脚本自身
 rm -fv set-sing-box.sh
 # 清理 bash 记录
