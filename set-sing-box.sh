@@ -158,11 +158,34 @@ getStartSing-box_cloudflared_ngrok() {
 		exit 1
 		;;
 	esac
- 
+
+	# github 项目 XIU2/CloudflareSpeedTest
+	URI="XIU2/CloudflareSpeedTest"
+        # 从 XIU2/CloudflareSpeedTest github中提取全部 tag 版本，获取最新版本赋值给 VERSION 后打印
+	VERSION=$(curl -sL "https://github.com/$URI/releases" | grep -oP '(?<=\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
+        # 拼接下载链接 URI_DOWNLOAD 后打印
+	URI_DOWNLOAD="https://github.com/$URI/releases/download/$VERSION/CloudflareST_$(uname -s)_$ARCH.tar.gz" ; echo $URI_DOWNLOAD
+        # 获取文件名 FILE_NAME 后打印
+	FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
+        # 下载文件，可续传并打印进度
+	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
+        # 创建目录 /home/$USER_NAME/CloudflareST
+	sudo mkdir -pv /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
+        # 解压项目到目录 /home/$USER_NAME/CloudflareST
+        sudo tar xzvf $FILE_NAME -C /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
+        # 执行测速命令，返回优选 ip
+	cd /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
+        VM_WEBSITE=$(./CloudflareST -dd -tll 90 -p 1 -o "" | tail -n1 | awk '{print $1}')
+        cd -
+        # 删除文件
+	sudo rm -rfv $FILE_NAME /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
+
+        # github 项目 SagerNet/sing-box
+	URI="SagerNet/sing-box"
         # 从 SagerNet/sing-box 官网中提取全部 tag 版本，获取最新版本赋值给 VERSION 后打印
-	VERSION=$(curl -sL "https://github.com/SagerNet/sing-box/releases" | grep -oP '(?<=\/SagerNet\/sing-box\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
+	VERSION=$(curl -sL "https://github.com/$URI/releases" | grep -oP '(?<=\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
         # 拼接下载链接 URI_DOWNLOAD 后打印
-	URI_DOWNLOAD="https://github.com/SagerNet/sing-box/releases/download/$VERSION/sing-box_${VERSION#v}_$(uname -s)_$ARCH.deb" ; echo $URI_DOWNLOAD
+	URI_DOWNLOAD="https://github.com/$URI/releases/download/$VERSION/sing-box_${VERSION#v}_$(uname -s)_$ARCH.deb" ; echo $URI_DOWNLOAD
         # 获取文件名 FILE_NAME 后打印
 	FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
         # 下载文件，可续传并打印进度
@@ -172,21 +195,22 @@ getStartSing-box_cloudflared_ngrok() {
         # 删除文件
 	rm -fv $FILE_NAME
 
+        # github 项目 cloudflare/cloudflared
+	URI="cloudflare/cloudflared"
         # 从 cloudflare/cloudflared 官网中提取全部 tag 版本，获取最新版本赋值给 VERSION 后打印
-	VERSION=$(curl -sL "https://github.com/cloudflare/cloudflared/releases" | grep -oP '(?<=\/cloudflare\/cloudflared\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
+	VERSION=$(curl -sL "https://github.com/$URI/releases" | grep -oP '(?<=\/releases\/tag\/)[^"]+' | head -n 1) ; echo $VERSION
         # 拼接下载链接 URI_DOWNLOAD 后打印
-	URI_DOWNLOAD="https://github.com/cloudflare/cloudflared/releases/download/$VERSION/cloudflared-$(uname -s)-$ARCH.deb" ; echo $URI_DOWNLOAD
+	URI_DOWNLOAD="https://github.com/$URI/releases/download/$VERSION/cloudflared-$(uname -s)-$ARCH.deb" ; echo $URI_DOWNLOAD
         # 获取文件名 FILE_NAME 后打印
 	FILE_NAME=$(basename $URI_DOWNLOAD) ; echo $FILE_NAME
         # 下载文件，可续传并打印进度
 	wget --verbose --show-progress=on --progress=bar --hsts-file=/tmp/wget-hsts -c "$URI_DOWNLOAD" -O $FILE_NAME
+ 	# 创建目录 /home/$USER_NAME/cloudflared
+	sudo mkdir -pv /home/$USER_NAME/${FILE_NAME%%-$(uname -s)-$ARCH.deb}
         # 安装文件
 	sudo dpkg -i $FILE_NAME
         # 删除文件
 	rm -fv $FILE_NAME
-
-	# 创建目录 /home/$USER_NAME/cloudflared
-	sudo mkdir -pv /home/$USER_NAME/cloudflared
 
         # 判断 NGROK_AUTH_TOKEN 变量是否在 actions 环境中存在
 	# 不存在则打印提示并退出，返回一个退出号
@@ -387,7 +411,14 @@ SMALLFLOWERCAT1995
 		R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
                 
 		# 默认优选 IP/域名 和 端口，可修改成自己的优选
-		VM_WEBSITE=icook.hk
+		# 不为空打印 VM_WEBSITE 域名
+                # 为空赋值默认域名后打印
+		if [ "$VM_WEBSITE" != "" ]; then
+			echo $VM_WEBSITE
+		else
+         		VM_WEBSITE=icook.hk
+  			echo $VM_WEBSITE
+		fi
 		VM_WEBSITE_PORT=443
 
 		# 从 cloudflared 日志中获得遂穿域名
