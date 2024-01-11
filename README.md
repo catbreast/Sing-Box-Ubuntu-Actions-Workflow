@@ -62,7 +62,7 @@
     2. PC 端 sing-box 能正常用
        Android 端 sing-box 只有 chrome 能使用
        IOS 端 sing-box 不能使用，也许是配置的问题？
-    3. ngrok 有每月带宽 1g 流量限制，到一定程度，就会报错，所以修改了逻辑
+    3. ngrok 有每月带宽 1g 限制，到一定程度，就会报错，所以修改了逻辑
        即使 ngrok 暂时不能用还有 cloudflared 可以接着用
 
 # 声明
