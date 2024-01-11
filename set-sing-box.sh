@@ -564,14 +564,14 @@ SMALLFLOWERCAT1995
       "platform": {
         "http_proxy": {
           "enabled": true,
-          "server": "0.0.0.0",
+          "server": "127.0.0.1",
           "server_port": 2080
         }
       }
     },
     {
       "type": "mixed",
-      "listen": "0.0.0.0",
+      "listen": "127.0.0.1",
       "listen_port": 2080,
       "sniff": true,
       "users": []
@@ -698,7 +698,7 @@ SMALLFLOWERCAT1995
   },
   "experimental": {
     "clash_api": {
-      "external_controller": "0.0.0.0:9090",
+      "external_controller": "127.0.0.1:9090",
       "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
       "external_ui_download_detour": "direct",
       "external_ui": "ui",
