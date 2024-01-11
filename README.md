@@ -70,6 +70,7 @@
 sing-box: https://sing-box.sagernet.org/  
 ngrok 使用: https://dashboard.ngrok.com/get-started/setup/linux  
 cloudflared: https://github.com/cloudflare/cloudflared  
+CloudflareSpeedTest: https://github.com/XIU2/CloudflareSpeedTest  
 使用 email smtp 发送邮件: https://blog.csdn.net/liuyuinsdu/article/details/113878840  
 youtube 绵阿羊 在sing-box上安装reality和hysteria2: https://www.youtube.com/watch?v=hbrOxWrGmTc  
 文档 绵阿羊 在sing-box上安装reality和hysteria2: https://blog.mareep.net/posts/15209  
