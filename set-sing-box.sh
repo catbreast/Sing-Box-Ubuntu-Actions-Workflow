@@ -201,7 +201,7 @@ getStartSing-box_cloudflared_ngrok() {
 	# 执行函数 get_random_port 传入端口号范围，赋值给 V_PORT
 	V_PORT="$(get_random_port 0 65535)"
         # 执行函数 get_random_port 传入端口号范围，赋值给 VM_PORT
-	#VM_PORT="$(get_random_port 0 65535)"
+	VM_PORT="$(get_random_port 0 65535)"
         # 写入 ngrok 配置文件，包含 ngrok 认证 key 、tcp 协议 ssh 端口和 tcp 协议 vless 端口
 	cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
