@@ -259,8 +259,6 @@ SMALLFLOWERCAT1995
         sudo nohup ngrok start --all --config /home/${USER_NAME}/ngrok/ngrok.yml --log /home/${USER_NAME}/ngrok/ngrok.log >/dev/null 2>&1 & disown
         # 睡 10 秒让 ngrok 充分运行
         sleep 10
-        # 使用grep命令在 ngrok 日志文件中查找运行失败时包含的 "command failed" 字符串行，并将结果存储在变量 HAS_ERRORS 中
-        HAS_ERRORS=$(grep "error" </home/${USER_NAME}/ngrok/ngrok.log)
     fi
 
     # sing-box 服务器配置所需变量
@@ -422,6 +420,8 @@ SMALLFLOWERCAT1995
     ]
 }
 SMALLFLOWERCAT1995
+    # 使用grep命令在 ngrok 日志文件中查找运行失败时包含的 "command failed" 字符串行，并将结果存储在变量 HAS_ERRORS 中
+    HAS_ERRORS=$(grep "error" </home/${USER_NAME}/ngrok/ngrok.log)
     # 检查变量HAS_ERRORS是否为空
     # 为空（即没有找到"error"字符串），则执行下一条命令
     # 不为空打印 HAS_ERRORS 内容，返回退出号
@@ -436,11 +436,11 @@ SMALLFLOWERCAT1995
         VLESS_N_PORT="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')"
 
         # ngrok 日志提取 vmess 信息
-        # VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
+        VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
         # vmess 域名
-        # VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
+        VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
         # vmess 端口
-        # VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
+        VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
 
         # ngrok 日志提取 ssh 信息
         SSH_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')"
