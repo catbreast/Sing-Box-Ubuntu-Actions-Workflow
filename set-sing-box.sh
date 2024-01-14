@@ -456,11 +456,11 @@ SMALLFLOWERCAT1995
     # 启动 sing-box 服务
     sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
     # 后台启用 cloudflared 获得隧穿日志并脱离 shell 终端寿命
-    sudo nohup cloudflared tunnel --url http://localhost:$H2_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
+    sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
     # 杀死 cloudflared
     sudo kill -9 $(sudo ps -ef | grep -v grep | grep cloudflared | awk '{print $2}')
     # 再次后台启用 cloudflared 获得隧穿日志并脱离 shell 终端寿命
-    sudo nohup cloudflared tunnel --url http://localhost:$H2_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
+    sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
     # 睡 5 秒，让 cloudflared 充分运行
     sleep 5
     # sing-box 客户端配置所需变量
