@@ -234,6 +234,8 @@ getAndStart() {
         V_PORT="$(get_random_port 0 65535)"
         # 执行函数 get_random_port 传入端口号范围，赋值给 VM_PORT
         VM_PORT="$(get_random_port 0 65535)"
+        # 执行函数 get_random_port 传入端口号范围，赋值给 H2_PORT
+        H2_PORT="$(get_random_port 0 65535)"
         # 写入 ngrok 配置文件，包含 ngrok 认证 key 、tcp 协议 ssh 端口和 tcp 协议 vless 端口
         cat <<SMALLFLOWERCAT1995 | sudo tee /home/$USER_NAME/ngrok/ngrok.yml >/dev/null
 authtoken: $NGROK_AUTH_TOKEN
@@ -247,9 +249,9 @@ tunnels:
     proto: tcp
     addr: $V_PORT
 
-  # vmess:
-  #   proto: tcp
-  #   addr: $VM_PORT
+  vmess:
+    proto: tcp
+    addr: $VM_PORT
 SMALLFLOWERCAT1995
         # 更新指定 ngrok 配置文件，添加版本号和网速最快的国家代码
         sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
@@ -313,6 +315,23 @@ SMALLFLOWERCAT1995
     VM_TYPE=ws
     # sing-box 生成 12 位 vmess hex 路径
     VM_PATH="$(sing-box generate rand --hex 6)"
+
+    # hysteria2 配置所需变量
+    # hysteria2 协议
+    H2_PROTOCOL=hysteria2
+    # hysteria2 入站名
+    H2_PROTOCOL_IN_TAG=$H2_PROTOCOL-in
+    # sing-box 生成 16 位 hysteria2 hex
+    H2_HEX="$(sing-box generate rand --hex 8)"
+    # hysteria2 类型
+    H2_TYPE=h3
+    # hysteria2 证书域名
+    H2_WEBSITE_CERTIFICATES=bing.com
+    # sing-box 生成 12 位 vmess hex 路径
+    sudo mkdir -pv /home/$USER_NAME/self-cert
+    sudo openssl ecparam -genkey -name prime256v1 -out /home/$USER_NAME/self-cert/private.key
+    sudo openssl req -new -x509 -days 36500 -key /home/$USER_NAME/self-cert/private.key -out /home/$USER_NAME/self-cert/cert.pem -subj "/CN="$H2_WEBSITE_CERTIFICATES
+
     # 写入服务器端 sing-box 配置文件
     cat <<SMALLFLOWERCAT1995 | sudo tee /etc/sing-box/config.json >/dev/null
 {
@@ -368,6 +387,27 @@ SMALLFLOWERCAT1995
             "max_early_data":2048,
             "early_data_header_name":"Sec-WebSocket-Protocol"
         }
+    },
+    {
+        "sniff": true,
+        "sniff_override_destination": true,
+        "type": "$H2_PROTOCOL",
+        "tag": "$H2_PROTOCOL_IN_TAG",
+        "listen": "::",
+        "listen_port": $H2_PORT,
+        "users": [
+            {
+                "password": "$H2_HEX"
+            }
+        ],
+        "tls": {
+            "enabled": true,
+            "alpn": [
+                "$H2_TYPE"
+            ],
+            "certificate_path": "/home/$USER_NAME/self-cert/cert.pem",
+            "key_path": "/home/$USER_NAME/self-cert/private.key"
+        }
     }
   ],
     "outbounds": [
@@ -394,6 +434,14 @@ SMALLFLOWERCAT1995
         VLESS_N_DOMAIN="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $4}')"
         # vless 端口
         VLESS_N_PORT="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')"
+
+        # ngrok 日志提取 vmess 信息
+        # VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
+        # vmess 域名
+        # VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
+        # vmess 端口
+        # VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
+
         # ngrok 日志提取 ssh 信息
         SSH_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')"
         # ssh 连接域名
@@ -408,11 +456,11 @@ SMALLFLOWERCAT1995
     # 启动 sing-box 服务
     sudo systemctl daemon-reload && sudo systemctl enable --now sing-box && sudo systemctl restart sing-box
     # 后台启用 cloudflared 获得隧穿日志并脱离 shell 终端寿命
-    sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
+    sudo nohup cloudflared tunnel --url http://localhost:$H2_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
     # 杀死 cloudflared
     sudo kill -9 $(sudo ps -ef | grep -v grep | grep cloudflared | awk '{print $2}')
     # 再次后台启用 cloudflared 获得隧穿日志并脱离 shell 终端寿命
-    sudo nohup cloudflared tunnel --url http://localhost:$VM_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
+    sudo nohup cloudflared tunnel --url http://localhost:$H2_PORT --no-autoupdate --edge-ip-version auto --protocol http2 >/home/$USER_NAME/cloudflared/cloudflared.log 2>&1 & disown
     # 睡 5 秒，让 cloudflared 充分运行
     sleep 5
     # sing-box 客户端配置所需变量
@@ -424,6 +472,8 @@ SMALLFLOWERCAT1995
     SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
     # vmess 出站名
     SB_VM_PROTOCOL_OUT_TAG=$VM_PROTOCOL-out
+    # hysteria2 出站名
+    SB_H2_PROTOCOL_OUT_TAG=$H2_PROTOCOL-out
     # reality 公钥信息提取
     R_PUBLICKEY="$(echo $R_PRIVATEKEY_PUBLICKEY | awk '{print $4}')"
     # 默认优选 IP/域名 和 端口，可修改成自己的优选
@@ -435,7 +485,7 @@ SMALLFLOWERCAT1995
         VM_WEBSITE=icook.hk
         echo $VM_WEBSITE
     fi
-    VM_WEBSITE_PORT=443
+
     # 从 cloudflared 日志中获得遂穿域名
     CLOUDFLARED_DOMAIN="$(cat /home/$USER_NAME/cloudflared/cloudflared.log | grep trycloudflare.com | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')"
     # 备用判断获取 CLOUDFLARED_DOMAIN 是否为空
@@ -447,9 +497,9 @@ SMALLFLOWERCAT1995
     # 	CLOUDFLARED_DOMAIN=$VMESS_N_DOMAIN
     # 	echo $CLOUDFLARED_DOMAIN
     # fi
-    # VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
-    # VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
-    # VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
+    # cloudflared 默认端口
+    CLOUDFLARED_PORT=443
+    
     # 写入 sing-box 客户端配置到 client-config.json 文件
     cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
 {
@@ -461,7 +511,8 @@ SMALLFLOWERCAT1995
         "auto",
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
-        "$SB_VM_PROTOCOL_OUT_TAG"
+        "$SB_VM_PROTOCOL_OUT_TAG",
+        "$SB_H2_PROTOCOL_OUT_TAG"
       ]
     },
     {
@@ -486,35 +537,53 @@ SMALLFLOWERCAT1995
         }
       }
     },
-    {
-      "server": "$VM_WEBSITE",
-      "server_port": $VM_WEBSITE_PORT,
-      "tag": "$SB_VM_PROTOCOL_OUT_TAG",
-      "tls": {
-        "enabled": true,
-        "server_name": "$CLOUDFLARED_DOMAIN",
-        "insecure": true,
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        }
-      },
-      "packet_encoding": "packetaddr",
-      "transport": {
-        "headers": {
-          "Host": [
-            "$CLOUDFLARED_DOMAIN"
-          ]
+        {
+            "server": "$VM_WEBSITE",
+            "server_port": $VMESS_N_PORT,
+            "tag": "$SB_VM_PROTOCOL_OUT_TAG",
+            "tls": {
+                "enabled": true,
+                "server_name": "$VMESS_N_DOMAIN",
+                "insecure": true,
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                }
+            },
+            "packet_encoding": "packetaddr",
+            "transport": {
+                "headers": {
+                    "Host": [
+                        "$VMESS_N_DOMAIN"
+                    ]
+                },
+                "path": "$VM_PATH",
+                "type": "$VM_TYPE",
+                "max_early_data": 2048,
+                "early_data_header_name": "Sec-WebSocket-Protocol"
+            },
+            "type": "$VM_PROTOCOL",
+            "security": "auto",
+            "uuid": "$VM_UUID"
         },
-        "type": "$VM_TYPE",
-        "path": "$VM_PATH",
-        "max_early_data": 2048,
-        "early_data_header_name": "Sec-WebSocket-Protocol"
+        {
+          "type": "$H2_PROTOCOL",
+          "server": "$CLOUDFLARED_DOMAIN",
+          "server_port": $CLOUDFLARED_PORT,
+          "tag": "$SB_H2_PROTOCOL_OUT_TAG",
+
+          "up_mbps": 100,
+          "down_mbps": 100,
+          "password": "$H2_HEX",
+          "tls": {
+              "enabled": true,
+              "server_name": "$H2_WEBSITE_CERTIFICATES",
+              "insecure": true,
+              "alpn": [
+                  "$H2_TYPE"
+              ]
+          }
       },
-      "type": "$VM_PROTOCOL",
-      "security": "auto",
-      "uuid": "$VM_UUID"
-    },
     {
       "tag": "direct",
       "type": "direct"
@@ -532,6 +601,7 @@ SMALLFLOWERCAT1995
       "type": "urltest",
       "outbounds": [
         "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_H2_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ],
       "url": "http://www.gstatic.com/generate_204",
@@ -544,6 +614,7 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_H2_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     },
@@ -553,6 +624,7 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_H2_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     },
@@ -562,6 +634,7 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "direct",
         "$SB_V_PROTOCOL_OUT_TAG",
+        "$SB_H2_PROTOCOL_OUT_TAG",
         "$SB_VM_PROTOCOL_OUT_TAG"
       ]
     }
@@ -576,7 +649,7 @@ SMALLFLOWERCAT1995
       },
       {
         "network": "udp",
-        "port": 443,
+        "port": $CLOUDFLARED_PORT,
         "outbound": "block"
       },
       {
@@ -815,7 +888,10 @@ VLESS is accessible at:
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
 
 # VMESS is accessible at: 
-# $HOSTNAME_IP:$VM_PORT -> $CLOUDFLARED_DOMAIN:$VM_WEBSITE_PORT
+# $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
+
+# HYSTERIA2 is accessible at: 
+# $HOSTNAME_IP:$H2_PORT -> $CLOUDFLARED_DOMAIN:$CLOUDFLARED_PORT
 
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
