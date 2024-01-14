@@ -178,7 +178,7 @@ getAndStart() {
     sudo tar xzvf $FILE_NAME -C /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
     # 执行测速命令，返回优选 ip
     cd /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
-    # VM_WEBSITE=$(./CloudflareST -dd -tll 90 -p 1 -o "" | tail -n1 | awk '{print $1}')
+    VM_WEBSITE=$(./CloudflareST -dd -tll 90 -p 1 -o "" | tail -n1 | awk '{print $1}')
     cd -
     # 删除文件
     sudo rm -rfv $FILE_NAME /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
@@ -249,9 +249,9 @@ tunnels:
     proto: tcp
     addr: $V_PORT
 
-  vmess:
+  hysteria2:
     proto: tcp
-    addr: $VM_PORT
+    addr: $H2_PORT
 SMALLFLOWERCAT1995
         # 更新指定 ngrok 配置文件，添加版本号和网速最快的国家代码
         sudo ngrok config upgrade --config /home/$USER_NAME/ngrok/ngrok.yml
@@ -436,11 +436,11 @@ SMALLFLOWERCAT1995
         VLESS_N_PORT="$(echo "$VLESS_N_INFO" | awk -F[/:] '{print $5}')"
 
         # ngrok 日志提取 vmess 信息
-        VMESS_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="vmess") | .public_url')"
+        H2_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="hysteria2") | .public_url')"
         # vmess 域名
-        VMESS_N_DOMAIN="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $4}')"
+        H2_N_DOMAIN="$(echo "$H2_N_INFO" | awk -F[/:] '{print $4}')"
         # vmess 端口
-        VMESS_N_PORT="$(echo "$VMESS_N_INFO" | awk -F[/:] '{print $5}')"
+        H2_N_PORT="$(echo "$H2_N_INFO" | awk -F[/:] '{print $5}')"
 
         # ngrok 日志提取 ssh 信息
         SSH_N_INFO="$(echo "$NGROK_INFO" | jq -r '.tunnels[] | select(.name=="ssh") | .public_url')"
@@ -538,12 +538,12 @@ SMALLFLOWERCAT1995
       }
     },
         {
-            "server": "$VMESS_N_DOMAIN",
-            "server_port": $VMESS_N_PORT,
+            "server": "$VM_WEBSITE",
+            "server_port": $CLOUDFLARED_PORT,
             "tag": "$SB_VM_PROTOCOL_OUT_TAG",
             "tls": {
                 "enabled": true,
-                "server_name": "$VMESS_N_DOMAIN",
+                "server_name": "$CLOUDFLARED_DOMAIN",
                 "insecure": true,
                 "utls": {
                     "enabled": true,
@@ -554,7 +554,7 @@ SMALLFLOWERCAT1995
             "transport": {
                 "headers": {
                     "Host": [
-                        "$VMESS_N_DOMAIN"
+                        "$CLOUDFLARED_DOMAIN"
                     ]
                 },
                 "path": "$VM_PATH",
@@ -568,8 +568,8 @@ SMALLFLOWERCAT1995
         },
         {
           "type": "$H2_PROTOCOL",
-          "server": "$CLOUDFLARED_DOMAIN",
-          "server_port": $CLOUDFLARED_PORT,
+          "server": "$H2_N_DOMAIN",
+          "server_port": $H2_N_PORT,
           "tag": "$SB_H2_PROTOCOL_OUT_TAG",
 
           "up_mbps": 100,
@@ -888,15 +888,14 @@ VLESS is accessible at:
 $HOSTNAME_IP:$V_PORT -> $VLESS_N_DOMAIN:$VLESS_N_PORT
 
 # VMESS is accessible at: 
-# $HOSTNAME_IP:$VM_PORT -> $VMESS_N_DOMAIN:$VMESS_N_PORT
+# $HOSTNAME_IP:$VM_PORT -> $CLOUDFLARED_DOMAIN:$CLOUDFLARED_PORT
 
 # HYSTERIA2 is accessible at: 
-# $HOSTNAME_IP:$H2_PORT -> $CLOUDFLARED_DOMAIN:$CLOUDFLARED_PORT
+# $HOSTNAME_IP:$H2_PORT -> $H2_N_DOMAIN:$H2_N_PORT
 
 Time Frame is accessible at: 
 $REPORT_DATE~$F_DATE
 SMALLFLOWERCAT1995
-
 }
 # 前戏初始化函数 initall
 initall
