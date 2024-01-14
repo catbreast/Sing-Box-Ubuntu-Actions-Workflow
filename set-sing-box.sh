@@ -178,7 +178,7 @@ getAndStart() {
     sudo tar xzvf $FILE_NAME -C /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
     # 执行测速命令，返回优选 ip
     cd /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
-    VM_WEBSITE=$(./CloudflareST -dd -tll 90 -p 1 -o "" | tail -n1 | awk '{print $1}')
+    # VM_WEBSITE=$(./CloudflareST -dd -tll 90 -p 1 -o "" | tail -n1 | awk '{print $1}')
     cd -
     # 删除文件
     sudo rm -rfv $FILE_NAME /home/$USER_NAME/${FILE_NAME%%_$(uname -s)_$ARCH.tar.gz}
@@ -538,7 +538,7 @@ SMALLFLOWERCAT1995
       }
     },
         {
-            "server": "$VM_WEBSITE",
+            "server": "$VMESS_N_DOMAIN",
             "server_port": $VMESS_N_PORT,
             "tag": "$SB_VM_PROTOCOL_OUT_TAG",
             "tls": {
