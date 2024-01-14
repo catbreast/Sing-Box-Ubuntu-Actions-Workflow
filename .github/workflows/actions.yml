@@ -26,9 +26,7 @@ jobs:
       - name: Run download curl
         run: |
           curl -SL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H "Connection: keep-alive" -k "https://raw.githubusercontent.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/master/set-sing-box.sh" -o set-sing-box.sh -O
-          sudo curl -SL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H "Connection: keep-alive" -k "https://raw.githubusercontent.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/master/ubtuntu22.04_udp-over-tcp/udp2tcp" -o /usr/bin/udp2tcp -O
-          sudo curl -SL --connect-timeout 30 -m 60 --speed-time 30 --speed-limit 1 --retry 2 -H "Connection: keep-alive" -k "https://raw.githubusercontent.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/master/ubtuntu22.04_udp-over-tcp/tcp2udp" -o /usr/bin/tcp2udp -O
-          sudo chmod u+x set-sing-box.sh /usr/bin/udp2tcp /usr/bin/tcp2udp 
+          sudo chmod u+x set-sing-box.sh
           bash set-sing-box.sh 
         env:
           USER_NAME: ${{ secrets.USER_NAME }}
