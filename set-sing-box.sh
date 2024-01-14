@@ -571,10 +571,10 @@ SMALLFLOWERCAT1995
           "server": "$H2_N_DOMAIN",
           "server_port": $H2_N_PORT,
           "tag": "$SB_H2_PROTOCOL_OUT_TAG",
-
           "up_mbps": 100,
           "down_mbps": 100,
           "password": "$H2_HEX",
+          "network": "tcp",
           "tls": {
               "enabled": true,
               "server_name": "$H2_WEBSITE_CERTIFICATES",
