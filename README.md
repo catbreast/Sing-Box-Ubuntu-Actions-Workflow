@@ -59,10 +59,7 @@
        我尝试了很多，udp转tcp，tcp转udp，端口监听，我真的尽力了，现在我一点办法也没有，
        唉，我只能用vmess和vless，也许你会问我为什么不买云服务器，我只是想说，太贵了，
        唉，我不想花钱，忍着吧
-    2. PC 端 sing-box 能正常用
-       Android 端 sing-box 只有 chrome 能使用
-       IOS 端 sing-box 不能使用，也许是配置的问题？
-    3. ngrok 有每月带宽 1g 限制，到一定程度，就会报错，所以修改了逻辑
+    2. ngrok 有每月带宽 1g 限制，到一定程度，就会报错，所以修改了逻辑
        即使 ngrok 暂时不能用还有 cloudflared 可以接着用
 
 # 声明
