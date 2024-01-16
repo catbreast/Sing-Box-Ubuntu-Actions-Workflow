@@ -60,7 +60,7 @@
         5. client-clash-meta-config.yaml
             a. clash-meta 配置文件支持 nekobox 和 clash-meta 导入
         6. client-config.json
-            a. sing-box 配置文件导入
+            a. sing-box 配置文件支持 sing-box 导入
 
 ![image](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/2e34633c-48c0-4955-afb9-191141a76062)
 
