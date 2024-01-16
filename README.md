@@ -44,6 +44,26 @@
         │   └── remove-old-workflow.yml                 # github actions 移除老旧的 workflow  
         ├── set-sing-box.sh                             # 搭建配置 sing-box 脚本  
         └── README.md                                   # 这个是说明文件   
+17. 脚本会生成6个文件发送到邮箱，如下图  
+
+        1. result.txt
+            a. 包含 ssh 端口转发信息以及连接命令
+            b. 包含 vless 端口转发信息以及共享导入链接
+            c. 包含 vmess 端口转发信息以及共享导入链接
+            d. 包含 hysteria2 端口转发信息以及共享导入链接
+        2. VLESS.png
+            a. vless 二维码扫描导入
+        3. VMESS.png
+            a. vmess 二维码扫描导入
+        4. HYSTERIA2.png
+            a. hysteria2 二维码扫描导入
+        5. client-clash-meta-config.yaml
+            a. clash-meta 配置文件导入
+        6. client-config.json
+            a. sing-box 配置文件导入
+
+![image](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/2e34633c-48c0-4955-afb9-191141a76062)
+
 
 # 更新
     1. 出于安全考虑还是使用邮箱把发送内容发给自己的邮箱，生成的配置文件仅支持sing-box客户端  
@@ -53,7 +73,7 @@
     5. 添加注释，方便以后的人改写脚本代码
     6. 更新添加优选IP
     7. 生成 vless vmess 和 hysteria2 二维码图片和链接方便 nekobox 和 v2rayng 等客户端导入
-    8. 生成 clash-meta yaml 配置文件方便导入
+    8. 生成 clash-meta yaml 配置文件方便 class-meta 导入
 
 # 缺陷
     1. 经历了许多次无奈，反复折磨，tcp和udp互转，我终于认清了现实，
