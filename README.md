@@ -1,5 +1,5 @@
 # Sing-Box-Ubuntu-Actions-Workflow
-这是借用 actions 产生的虚拟机网络环境并使用 sing-box + reality(vless) + vmess 共享网络环境并通过 ngrok 透传网络数据从而让我访问国际互联网的临时应急方案  
+这是借用 actions 产生的虚拟机网络环境并使用 sing-box + reality(vless) + vmess 共享网络环境并通过 ngrok + cloudflared 透传网络数据从而让我访问国际互联网的临时应急方案  
 
 [![GitHub Workflow Status](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/actions/workflows/actions.yml/badge.svg)](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/actions/workflows/actions.yml)![Watchers](https://img.shields.io/github/watchers/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow) ![Stars](https://img.shields.io/github/stars/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow) ![Forks](https://img.shields.io/github/forks/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow) ![Vistors](https://visitor-badge.laobi.icu/badge?page_id=smallflowercat1995.Sing-Box-Ubuntu-Actions-Workflow) ![LICENSE](https://img.shields.io/badge/license-CC%20BY--SA%204.0-green.svg)
 <a href="https://star-history.com/#smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow&Date">
@@ -66,7 +66,7 @@
 
 
 # 更新
-    1. 出于安全考虑还是使用邮箱把发送内容发给自己的邮箱，生成的配置文件仅支持sing-box客户端  
+    1. 出于安全考虑还是使用邮箱把发送内容发给自己的邮箱，生成的文件支持 sing-box nekobx 和 clash-meta 客户端  
     2. 维持的时间还是不稳定，最长维持 44min42s  
     3. 修改发件内容为文本附近形式  
     4. 修改了描述文件，提供详细的描述，方便他人
