@@ -73,7 +73,7 @@
     5. 添加注释，方便以后的人改写脚本代码
     6. 更新添加优选IP
     7. 生成 vless vmess 和 hysteria2 二维码图片和链接方便 nekobox 和 v2rayng 等客户端导入
-    8. 生成 clash-meta yaml 配置文件方便 class-meta 导入
+    8. 生成 clash-meta yaml 配置文件方便 class-meta 等客户端导入
 
 # 缺陷
     1. 经历了许多次无奈，反复折磨，tcp和udp互转，我终于认清了现实，
