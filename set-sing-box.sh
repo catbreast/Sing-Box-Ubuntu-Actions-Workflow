@@ -504,17 +504,17 @@ SMALLFLOWERCAT1995
     CLOUDFLARED_PORT=443
     
     # VLESS 二维码生成扫描文件
-    VLESS_LINK="vless://$V_UUID@$VLESS_N_DOMAIN:$VLESS_N_PORT?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$R_STEAL_WEBSITE_CERTIFICATES&fp=chrome&pbk=$R_PUBLICKEY&sid=$R_HEX&type=tcp&headerType=none#github-actions-vless"
+    VLESS_LINK="vless://$V_UUID@$VLESS_N_DOMAIN:$VLESS_N_PORT/?type=tcp&encryption=none&flow=xtls-rprx-vision&sni=$R_STEAL_WEBSITE_CERTIFICATES&fp=chrome&security=reality&pbk=$R_PUBLICKEY&sid=$R_HEX&packetEncoding=xudp#$SB_V_PROTOCOL_OUT_TAG_A"
     #qrencode -t UTF8 $VLESS_LINK
     qrencode -o VLESS.png $VLESS_LINK
 
     # VMESS 二维码生成扫描文件
-    VMESS_LINK='vmess://'$(echo '{"add":"'$VM_WEBSITE'","aid":"0","host":"'$CLOUDFLARED_DOMAIN'","id":"'$VM_UUID'","net":"'$VM_TYPE'","path":"'$VM_PATH?ed=2048'","port":"'$CLOUDFLARED_PORT'","ps":"github-actions-vmess","tls":"tls","type":"none","v":"2"}' | base64 -w 0)
+    VMESS_LINK='vmess://'$(echo '{"add":"'$VM_WEBSITE'","aid":"0","alpn":"","fp":"chrome","host":"'$CLOUDFLARED_DOMAIN'","id":"'$VM_UUID'","net":"'$VM_TYPE'","path":"/"'$VM_PATH'"?ed\u003d2048","port":"'$CLOUDFLARED_PORT'","ps":"'$SB_VM_PROTOCOL_OUT_TAG_A'","scy":"auto","sni":"'$CLOUDFLARED_DOMAIN'","tls":"tls","type":"","v":"2"}' | base64 -w 0)
     #qrencode -t UTF8 $VMESS_LINK
     qrencode -o VMESS.png $VMESS_LINK
 
     # HYSTERIA2 二维码生成扫描文件
-    HYSTERIA2_LINK="hysteria2://$H2_HEX@$H2_N_DOMAIN:$H2_N_PORT?insecure=1&sni=$H2_WEBSITE_CERTIFICATES"
+    HYSTERIA2_LINK="hy2://$H2_HEX@$H2_N_DOMAIN:$H2_N_PORT/?insecure=1&sni=$H2_WEBSITE_CERTIFICATES#$SB_H2_PROTOCOL_OUT_TAG_A"
     #qrencode -t UTF8 $HYSTERIA2_LINK
     qrencode -o HYSTERIA2.png $HYSTERIA2_LINK
 
@@ -579,18 +579,18 @@ proxies:
       path: /$VM_PATH?ed=2048
       headers:
         Host: $CLOUDFLARED_DOMAIN
-
-  - name: $SB_H2_PROTOCOL_OUT_TAG_A
-    type: $H2_PROTOCOL
-    server: $H2_N_DOMAIN
-    port: $H2_N_PORT
-    up: "100 Mbps"
-    down: "100 Mbps"
-    password: $H2_HEX
-    sni: $H2_WEBSITE_CERTIFICATES
-    skip-cert-verify: true
-    alpn:
-      - $H2_TYPE
+  # 不支持 HYSTERIA2 注释
+  # - name: $SB_H2_PROTOCOL_OUT_TAG_A
+  #   type: $H2_PROTOCOL
+  #   server: $H2_N_DOMAIN
+  #   port: $H2_N_PORT
+  #   up: "100 Mbps"
+  #   down: "100 Mbps"
+  #   password: $H2_HEX
+  #   sni: $H2_WEBSITE_CERTIFICATES
+  #   skip-cert-verify: true
+  #   alpn:
+  #     - $H2_TYPE
 
 proxy-groups:
   - name: 🚀 节点选择
@@ -599,7 +599,7 @@ proxy-groups:
       - ♻️ 自动选择
       - $SB_V_PROTOCOL_OUT_TAG_A
       - $SB_VM_PROTOCOL_OUT_TAG_A
-      - $SB_H2_PROTOCOL_OUT_TAG_A
+      # - $SB_H2_PROTOCOL_OUT_TAG_A
       - DIRECT
   - name: ♻️ 自动选择
     type: url-test
@@ -609,7 +609,7 @@ proxy-groups:
     proxies:
       - $SB_V_PROTOCOL_OUT_TAG_A
       - $SB_VM_PROTOCOL_OUT_TAG_A
-      - $SB_H2_PROTOCOL_OUT_TAG_A
+      # - $SB_H2_PROTOCOL_OUT_TAG_A
   - name: 🌍 国外媒体
     type: select
     proxies:
@@ -617,7 +617,7 @@ proxy-groups:
       - 🎯 全球直连
       - $SB_V_PROTOCOL_OUT_TAG_A
       - $SB_VM_PROTOCOL_OUT_TAG_A
-      - $SB_H2_PROTOCOL_OUT_TAG_A
+      # - $SB_H2_PROTOCOL_OUT_TAG_A
   - name: 📲 电报信息
     type: select
     proxies:
@@ -625,7 +625,7 @@ proxy-groups:
       - 🎯 全球直连
       - $SB_V_PROTOCOL_OUT_TAG_A
       - $SB_VM_PROTOCOL_OUT_TAG_A
-      - $SB_H2_PROTOCOL_OUT_TAG_A
+      # - $SB_H2_PROTOCOL_OUT_TAG_A
   - name: Ⓜ️ 微软服务
     type: select
     proxies:
@@ -658,7 +658,7 @@ proxy-groups:
       - 🎯 全球直连
       - $SB_V_PROTOCOL_OUT_TAG_A
       - $SB_VM_PROTOCOL_OUT_TAG_A
-      - $SB_H2_PROTOCOL_OUT_TAG_A
+      # - $SB_H2_PROTOCOL_OUT_TAG_A
 rules:
  - DOMAIN-SUFFIX,acl4.ssr,🎯 全球直连
  - DOMAIN-SUFFIX,ip6-localhost,🎯 全球直连
