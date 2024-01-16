@@ -33,18 +33,6 @@ jobs:
           USER_PW: ${{ secrets.USER_PW }}
           HOST_NAME: ${{ secrets.HOST_NAME }}
           NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
-
-      - name: Archive files
-        uses: actions/upload-artifact@v2
-        with:
-          name: artifacts
-          path: |
-            result.txt
-            VLESS.png
-            VMESS.png
-            HYSTERIA2.png
-            client-clash-meta-config.yaml
-            client-config.json
             
       - name: Send email with attachments
         if: success()
@@ -59,7 +47,13 @@ jobs:
           to: ${{ secrets.MAILSENDTO }}
           from: GitHub Actions
           body: run job of ${{ github.repository }} completed successfully!
-          attachments: artifacts
+          attachments: |
+            result.txt
+            VLESS.png
+            VMESS.png
+            HYSTERIA2.png
+            client-clash-meta-config.yaml
+            client-config.json
 
       - name: 6h
         run: | 
