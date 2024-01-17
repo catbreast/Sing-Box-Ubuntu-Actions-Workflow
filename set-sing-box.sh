@@ -530,16 +530,16 @@ SMALLFLOWERCAT1995
     cat <<SMALLFLOWERCAT1995 | sudo tee client-clash-meta-config.yaml >/dev/null
 port: 7891
 socks-port: 7892
-redir-port: 7893
-tproxy-port: 7894
-mixed-port: 7895
+mixed-port: 7893
+redir-port: 7894
+tproxy-port: 7895
 bind-address: '*'
 allow-lan: true
 mode: Rule
 log-level: debug
 external-controller: 127.0.0.1:9090
 clash-for-android:
-    append-system-dns: false
+  append-system-dns: false
 hosts:
   mtalk.google.com: 108.177.125.188
 dns:
