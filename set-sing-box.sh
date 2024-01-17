@@ -526,8 +526,8 @@ SMALLFLOWERCAT1995
     #qrencode -t UTF8 $HYSTERIA2_LINK
     qrencode -o HYSTERIA2.png $HYSTERIA2_LINK
 
-    # 写入 clash-meta 客户端配置到 client-clash-meta-config.yaml 文件
-    cat << SMALLFLOWERCAT1995 | sudo tee client-clash-meta-config.yaml >/dev/null
+    # 写入 nekobox 客户端配置到 client-nekobox-config.yaml 文件
+    cat << SMALLFLOWERCAT1995 | sudo tee client-nekobox-config.yaml >/dev/null
 port: 7891
 socks-port: 7892
 mixed-port: 7893
@@ -3696,8 +3696,8 @@ rules:
   - MATCH,🐟 漏网之鱼
  SMALLFLOWERCAT1995
 
-    # 写入 sing-box 客户端配置到 client-config.json 文件
-    cat <<SMALLFLOWERCAT1995 | sudo tee client-config.json >/dev/null
+    # 写入 sing-box 客户端配置到 client-sing-box-config.json 文件
+    cat <<SMALLFLOWERCAT1995 | sudo tee client-sing-box-config.json >/dev/null
 {
 	"log": {
 		"level": "debug",
