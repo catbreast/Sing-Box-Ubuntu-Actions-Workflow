@@ -62,7 +62,8 @@
         6. client-sing-box-config.json
             a. sing-box 配置文件支持 sing-box 导入
 
-![image](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/2e34633c-48c0-4955-afb9-191141a76062)
+![image](https://github.com/smallflowercat1995/Sing-Box-Ubuntu-Actions-Workflow/assets/144557489/027575e8-5d88-410b-8e71-30317a795452)
+
 
 
 # 更新
