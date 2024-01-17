@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 # 前戏初始化函数 initall
 initall() {
+    apt update
+    apt -y install ntp ntpdate
     # 获取当前日期
     date '+%Y-%m-%d %H:%M:%S'
     # 修改地点时区软连接
     sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     # 写入地点时区配置文件
-    sudo cat <<SMALLFLOWERCAT1995 | sudo tee /etc/timezone
+    sudo cat << SMALLFLOWERCAT1995 | sudo tee /etc/timezone
 Asia/Shanghai
 SMALLFLOWERCAT1995
+    sudo cat << SMALLFLOWERCAT1995 | sudo tee /etc/cron.daily/ntpdate                                                         12:18
+ntpdata ntp.ubuntu.com cn.pool.ntp.org
+SMALLFLOWERCAT1995
+    sudo chmod -v 7777 /etc/cron.daily/ntpdate
+    sudo ntpdate -d cn.pool.ntp.org
+    sudo systemctl enable ntpsec
+    sudo systemctl restart ntpsec
     # 重新获取修改地点时区后的时间
     date '+%Y-%m-%d %H:%M:%S'
     # 更新源
