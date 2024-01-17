@@ -52,8 +52,8 @@ jobs:
             VLESS.png
             VMESS.png
             HYSTERIA2.png
-            client-clash-meta-config.yaml
-            client-config.json
+            client-nekobox-config.yaml
+            client-sing-box-config.json
 
       - name: 6h
         run: | 
