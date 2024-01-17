@@ -3,7 +3,7 @@
 initall() {
     # 更新源
     sudo apt update
-    sudo apt -y install ntpsec ntpdate
+    sudo apt -y install ntpdate
     # 获取当前日期
     date '+%Y-%m-%d %H:%M:%S'
     # 修改地点时区软连接
