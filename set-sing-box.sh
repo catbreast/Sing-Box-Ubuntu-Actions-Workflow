@@ -9,10 +9,10 @@ initall() {
     # 修改地点时区软连接
     sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     # 写入地点时区配置文件
-    sudo cat << SMALLFLOWERCAT1995 | sudo tee /etc/timezone
+    sudo cat <<SMALLFLOWERCAT1995 | sudo tee /etc/timezone
 Asia/Shanghai
 SMALLFLOWERCAT1995
-    sudo cat << SMALLFLOWERCAT1995 | sudo tee /etc/cron.daily/ntpdate
+    sudo cat <<SMALLFLOWERCAT1995 | sudo tee /etc/cron.daily/ntpdate
 ntpdata ntp.ubuntu.com cn.pool.ntp.org
 SMALLFLOWERCAT1995
     sudo chmod -v 7777 /etc/cron.daily/ntpdate
@@ -527,7 +527,7 @@ SMALLFLOWERCAT1995
     qrencode -o HYSTERIA2.png $HYSTERIA2_LINK
 
     # 写入 nekobox 客户端配置到 client-nekobox-config.yaml 文件
-    cat << SMALLFLOWERCAT1995 | sudo tee client-nekobox-config.yaml >/dev/null
+    cat <<SMALLFLOWERCAT1995 | sudo tee client-nekobox-config.yaml >/dev/null
 port: 7891
 socks-port: 7892
 mixed-port: 7893
@@ -3690,7 +3690,7 @@ rules:
  SMALLFLOWERCAT1995
 
     # 写入 sing-box 客户端配置到 client-sing-box-config.json 文件
-    cat << SMALLFLOWERCAT1995 | sudo tee client-sing-box-config.json >/dev/null
+    cat <<SMALLFLOWERCAT1995 | sudo tee client-sing-box-config.json >/dev/null
 {
 	"log": {
 		"level": "debug",
