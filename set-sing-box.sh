@@ -5,7 +5,7 @@ initall() {
     sudo apt update
     sudo apt -y install ntpdate
     # 获取当前日期
-    date '+%Y-%m-%d %H:%M:%S'
+    echo 老时间$(date '+%Y-%m-%d %H:%M:%S')
     # 修改地点时区软连接
     sudo ln -sfv /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     # 写入地点时区配置文件
@@ -17,10 +17,10 @@ ntpdata ntp.ubuntu.com cn.pool.ntp.org
 SMALLFLOWERCAT1995
     sudo chmod -v 7777 /etc/cron.daily/ntpdate
     sudo ntpdate -d cn.pool.ntp.org
-    sudo systemctl enable ntpsec
-    sudo systemctl restart ntpsec
     # 重新获取修改地点时区后的时间
-    date '+%Y-%m-%d %H:%M:%S'
+    echo 新时间$(date '+%Y-%m-%d %H:%M:%S')
+    # 起始时间
+    REPORT_DATE="$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')"
     # 安装可能会用到的工具
     sudo apt-get install -y aria2 catimg git locales curl wget tar socat qrencode uuid net-tools jq
     # 配置简体中文字符集支持
@@ -4502,10 +4502,9 @@ SMALLFLOWERCAT1995
     # 发送到邮件所需变量
     # 本机 ip
     HOSTNAME_IP="$(hostname -I)"
-    # 起始时间
-    REPORT_DATE="$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')"
     # 终末时间=起始时间+6h
-    F_DATE="$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')"
+    #F_DATE="$(date -d '${REPORT_DATE}' --date='6 hour' +'%Y-%m-%d %T')"
+    F_DATE="$(TZ=':Asia/Shanghai' date +'%Y-%m-%d %T')"
     # 写入 result.txt
     cat <<SMALLFLOWERCAT1995 | sudo tee result.txt >/dev/null
 SSH is accessible at: 
