@@ -537,7 +537,7 @@ bind-address: '*'
 allow-lan: true
 mode: Rule
 log-level: debug
-external-controller: 127.0.0.1:9090
+external-controller: 127.0.0.1:7896
 clash-for-android:
     append-system-dns: false
 hosts:
@@ -3622,7 +3622,7 @@ SMALLFLOWERCAT1995
 	},
 	"experimental": {
 		"clash_api": {
-			"external_controller": "127.0.0.1:9090",
+			"external_controller": "127.0.0.1:7896",
 			"external_ui": "ui",
 			"secret": "",
 			"external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
