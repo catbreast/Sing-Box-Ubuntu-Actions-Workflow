@@ -476,6 +476,8 @@ SMALLFLOWERCAT1995
     SB_ALL_PROTOCOL_OUT_TAG=proxy
     # 出站类型
     SB_ALL_PROTOCOL_OUT_TYPE=selector
+    # 组
+    SB_ALL_PROTOCOL_OUT_GROUP_TAG=sing-box
     # vless 出站名
     SB_V_PROTOCOL_OUT_TAG=$V_PROTOCOL-out
     #SB_V_PROTOCOL_OUT_TAG_A=$SB_V_PROTOCOL_OUT_TAG-A
@@ -3680,7 +3682,7 @@ SMALLFLOWERCAT1995
       "outbounds": [
         "auto",
         "direct",
-        "nekowarp"
+        "$SB_ALL_PROTOCOL_OUT_GROUP_TAG"
       ]
     },
     {
@@ -3940,7 +3942,7 @@ SMALLFLOWERCAT1995
       ]
     },
     {
-      "tag": "nekowarp",
+      "tag": "$SB_ALL_PROTOCOL_OUT_GROUP_TAG",
       "type": "selector",
       "outbounds": [
         "$SB_V_PROTOCOL_OUT_TAG",
