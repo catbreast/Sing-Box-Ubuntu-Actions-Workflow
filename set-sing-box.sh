@@ -8000,7 +8000,7 @@ SMALLFLOWERCAT1995
       "type": "selector",
       "outbounds": [
         "direct",
-        "TaiWan"
+        "Others"
       ]
     },
     {
