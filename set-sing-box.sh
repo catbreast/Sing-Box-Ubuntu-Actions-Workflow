@@ -7929,14 +7929,14 @@ SMALLFLOWERCAT1995
       "inet4_address": "172.19.0.1/30",
       "mtu": 9000,
       "auto_route": true,
-      "strict_route": true,
+      "strict_route": false,
       "sniff": true,
       "endpoint_independent_nat": false,
       "stack": "system",
       "platform": {
         "http_proxy": {
           "enabled": true,
-          "server": "::",
+          "server": "0.0.0.0",
           "server_port": 7891
         }
       }
@@ -7944,7 +7944,7 @@ SMALLFLOWERCAT1995
     {
       "type": "http",
       "tag": "http-in",
-      "listen": "::",
+      "listen": "0.0.0.0",
       "listen_port": 7891,
       "sniff": true,
       "users": []
@@ -7952,7 +7952,7 @@ SMALLFLOWERCAT1995
     {
       "type": "socks",
       "tag": "socks-in",
-      "listen": "::",
+      "listen": "0.0.0.0",
       "listen_port": 7892,
       "sniff": true,
       "users": []
@@ -7960,7 +7960,7 @@ SMALLFLOWERCAT1995
     {
       "type": "mixed",
       "tag": "mixed-in",
-      "listen": "::",
+      "listen": "0.0.0.0",
       "listen_port": 7893,
       "sniff": true,
       "users": []
