@@ -533,12 +533,12 @@ SMALLFLOWERCAT1995
 port: 7891
 socks-port: 7892
 mixed-port: 7893
-redir-port: 7894
-tproxy-port: 7895
+external-controller: :7894
+redir-port: 7895
+tproxy-port: 7896
 allow-lan: true
 mode: Rule
 log-level: info
-external-controller: :7896
 proxies:
   - {"name": "$SB_V_PROTOCOL_OUT_TAG","type": "$V_PROTOCOL","server": "$VLESS_N_DOMAIN","port": $VLESS_N_PORT,"uuid": "$V_UUID","network": "tcp","udp": true,"tls": true,"flow": "xtls-rprx-vision","servername": "$R_STEAL_WEBSITE_CERTIFICATES","client-fingerprint": "chrome","reality-opts": {"public-key": "$R_PUBLICKEY","short-id": "$R_HEX"}}
   - {"name": "$SB_VM_PROTOCOL_OUT_TAG","type": "$VM_PROTOCOL","server": "$VM_WEBSITE","port": $CLOUDFLARED_PORT,"uuid": "$VM_UUID","alterId": 0,"cipher": "auto","udp": true,"tls": true,"client-fingerprint": "chrome","skip-cert-verify": true,"servername": "$CLOUDFLARED_DOMAIN","network": "$VM_TYPE","ws-opts": {"path": "/$VM_PATH?ed=2048","headers": {"Host": "$CLOUDFLARED_DOMAIN"}}}
@@ -7856,7 +7856,7 @@ SMALLFLOWERCAT1995
   },
   "experimental": {
     "clash_api": {
-      "external_controller": "0.0.0.0:7896",
+      "external_controller": ":7894",
       "external_ui": "ui",
       "secret": "",
       "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
@@ -7936,14 +7936,31 @@ SMALLFLOWERCAT1995
       "platform": {
         "http_proxy": {
           "enabled": true,
-          "server": "0.0.0.0",
-          "server_port": 7893
+          "server": "::",
+          "server_port": 7891
         }
       }
     },
     {
+      "type": "http",
+      "tag": "http-in",
+      "listen": "::",
+      "listen_port": 7891,
+      "sniff": true,
+      "users": []
+    },
+    {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "::",
+      "listen_port": 7892,
+      "sniff": true,
+      "users": []
+    },
+    {
       "type": "mixed",
-      "listen": "0.0.0.0",
+      "tag": "mixed-in",
+      "listen": "::",
       "listen_port": 7893,
       "sniff": true,
       "users": []
