@@ -7856,7 +7856,7 @@ SMALLFLOWERCAT1995
   },
   "experimental": {
     "clash_api": {
-      "external_controller": "127.0.0.1:9090",
+      "external_controller": "0.0.0.0:7896",
       "external_ui": "ui",
       "secret": "",
       "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
