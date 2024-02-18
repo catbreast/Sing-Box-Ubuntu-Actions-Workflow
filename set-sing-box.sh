@@ -7937,7 +7937,7 @@ SMALLFLOWERCAT1995
         "http_proxy": {
           "enabled": true,
           "server": "0.0.0.0",
-          "server_port": 7891
+          "server_port": 7893
         }
       }
     },
