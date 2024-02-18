@@ -7936,15 +7936,15 @@ SMALLFLOWERCAT1995
       "platform": {
         "http_proxy": {
           "enabled": true,
-          "server": "127.0.0.1",
-          "server_port": 2080
+          "server": "0.0.0.0",
+          "server_port": 7891
         }
       }
     },
     {
       "type": "mixed",
-      "listen": "127.0.0.1",
-      "listen_port": 2080,
+      "listen": "0.0.0.0",
+      "listen_port": 7893,
       "sniff": true,
       "users": []
     }
