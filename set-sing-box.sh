@@ -7861,7 +7861,7 @@ SMALLFLOWERCAT1995
       "secret": "",
       "external_ui_download_url": "https://mirror.ghproxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
       "external_ui_download_detour": "direct",
-      "default_mode": "rule"
+      "default_mode": "global"
     },
     "cache_file": {
       "enabled": true,
