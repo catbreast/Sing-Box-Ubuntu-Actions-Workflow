@@ -1335,7 +1335,9 @@ SMALLFLOWERCAT1995
     },
     "cache_file": {
       "enabled": true,
-      "store_fakeip": false
+      "path": "cache.db",
+      "cache_id": "cache",
+      "store_fakeip": true
     }
   },
   "dns": {
@@ -1400,16 +1402,7 @@ SMALLFLOWERCAT1995
       "mtu": 9000,
       "auto_route": true,
       "strict_route": false,
-      "sniff": true,
-      "endpoint_independent_nat": false,
-      "stack": "system",
-      "platform": {
-        "http_proxy": {
-          "enabled": true,
-          "server": "0.0.0.0",
-          "server_port": 7891
-        }
-      }
+      "sniff": true
     },
     {
       "type": "http",
